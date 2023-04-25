@@ -1,0 +1,4 @@
+{
+    "resnet18": false,
+    "resnet_dropout": 0
+}
