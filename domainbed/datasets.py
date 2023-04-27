@@ -217,9 +217,9 @@ class MultipleEnvironmentImageFolder(MultipleDomainDataset):
         self.input_shape = (3, 224, 224,)
         self.num_classes = len(self.datasets[-1].classes)
         
-        hparams['domain_names'] = environments
+        hparams['domain_names'] = [domain_name.lower().replace("_", " ") for domain_name in sorted(environments)]
         class_names = [f.name for f in os.scandir(os.path.join(root, environments[0])) if f.is_dir()]
-        hparams['class_names'] = sorted(class_names)
+        hparams['class_names'] = [cls_name.lower().replace("_", " ") for cls_name in sorted(class_names)]
 
 class VLCS(MultipleEnvironmentImageFolder):
     CHECKPOINT_FREQ = 300

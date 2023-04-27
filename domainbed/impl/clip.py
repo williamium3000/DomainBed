@@ -11,7 +11,7 @@ class CLIP(Algorithm):
         super(CLIP, self).__init__(input_shape, num_classes, num_domains, hparams)
         self.device = 'cuda' if torch.cuda.is_available() else 'cpu'
 
-        self.model = networks.clip(self.hparams)
+        self.model = networks.CLIP(self.hparams)
 
         for param in self.model.parameters():
             param.requires_grad = False
@@ -56,9 +56,9 @@ class CLIP_LP(ERM):
     def predict(self, x):
         return self.classifier(self.featurizer.forward_image(x))
 
-class CLIP_LP(ERM): 
+class CLIP_Finetune(ERM): 
     def __init__(self, input_shape, num_classes, num_domains, hparams):
-        super(CLIP_LP, self).__init__(input_shape, num_classes, num_domains, hparams)
+        super(CLIP_Finetune, self).__init__(input_shape, num_classes, num_domains, hparams)
         self.device = 'cuda' if torch.cuda.is_available() else 'cpu'
 
         self.featurizer = networks.CLIP(self.hparams)

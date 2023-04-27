@@ -1,6 +1,6 @@
 # Copyright (c) Facebook, Inc. and its affiliates. All Rights Reserved
 from .impl.original import *
-
+from .impl.clip import CLIP, CLIP_LP, CLIP_Finetune
 
 ALGORITHMS = [
     'ERM',
@@ -32,6 +32,9 @@ ALGORITHMS = [
     'Transfer',
     'CausIRL_CORAL',
     'CausIRL_MMD',
+    'CLIP',
+    'CLIP_LP',
+    'CLIP_Finetune'
 ]
 
 def get_algorithm_class(algorithm_name):
