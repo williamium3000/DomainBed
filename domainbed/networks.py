@@ -9,6 +9,8 @@ from domainbed.lib import wide_resnet
 import copy
 
 
+from clip import clip
+
 def remove_batch_norm_from_resnet(model):
     fuse = torch.nn.utils.fusion.fuse_conv_bn_eval
     model.eval()
@@ -226,3 +228,74 @@ class WholeFish(nn.Module):
 
     def forward(self, x):
         return self.net(x)
+
+
+# function to renormalize the image for CLIP
+def denormalize(images, type="imagenet"):
+    # images [b, 3, H, W]
+    mean = torch.tensor([0.485, 0.456, 0.406], device=images.device).view(1, 3, 1, 1).type_as(images)
+    std = torch.tensor([0.229, 0.224, 0.225], device=images.device).view(1, 3, 1, 1).type_as(images)
+    return std * images + mean
+
+
+def normalize(images, type="clip"):
+    # images [b, 3, h, w]
+    mean = torch.tensor([0.48145466, 0.4578275, 0.40821073], device=images.device).view(1, 3, 1, 1).type_as(images)
+    std = torch.tensor([0.26862954, 0.26130258, 0.27577711], device=images.device).view(1, 3, 1, 1).type_as(images)
+    return (images - mean) / std
+
+class CLIP(nn.Module):
+    def __init__(self, hparams):
+        super(CLIP, self).__init__()
+        
+        # ['RN50', 'RN101', 'RN50x4', 'RN50x16', 'RN50x64', 'ViT-B/32', 'ViT-B/16', 'ViT-L/14', 'ViT-L/14@336px']
+        if hparams['clip_model'] not in clip.available_models():
+            raise ValueError(f"backbone {hparams['clip_model']} not available")
+
+        print(f'Using {hparams["clip_model"]}...')
+        self.clip_model = clip.load(hparams['clip_model'])[0].float()
+        #self.clip_model = self.clip_model.eval()
+
+        # embedding dimensions based on CLIP paper https://arxiv.org/pdf/2103.00020.pdf
+        if hparams['clip_model'] == 'RN50':
+            self.num_features = 1024
+        elif hparams['clip_model'] == 'RN101' or hparams['clip_model'] == 'ViT-B/32' or hparams['clip_model'] == 'ViT-B/16':
+            self.num_features = 512
+        elif hparams['clip_model'] == 'RN50x16' or hparams['clip_model'] == 'ViT-L/14' or hparams['clip_model'] == 'ViT-L/14@336px':
+            self.num_features = 748
+        elif hparams['clip_model'] == 'RN50x64':
+            self.num_features = 1024
+        elif hparams['clip_model'] == 'RN50x4':
+            self.num_features = 640
+        
+        if hparams['clip_model'] == 'RN50' or hparams['clip_model'] == 'RN101':
+            self.width = 2048
+        elif hparams['clip_model'] == 'ViT-B/32' or hparams['clip_model'] == 'ViT-B/16':
+            self.width = 768
+        elif hparams['clip_model'] == 'ViT-L/14' or hparams['clip_model'] == 'ViT-L/14@336px':
+            self.width = 1024
+        elif hparams['clip_model'] == 'RN50x16':
+            self.width = 3072
+        elif hparams['clip_model'] == 'RN50x4':
+            self.width = 3072
+        elif hparams['clip_model'] == 'RN50x64':
+            self.width = 4096
+            
+        if hparams['clip_model'] == 'RN50' or hparams['clip_model'] == 'RN101' or hparams['clip_model'] == 'RN50x16' or hparams['clip_model'] == 'RN50x64' \
+            or hparams['clip_model'] == 'RN50x4':
+            self.has_cls_token = False
+        else:
+            self.has_cls_token = True
+
+    def forward_image(self, x):
+        x = normalize(denormalize(x))
+        return self.clip_model.encode_image(x)
+    
+    def forward_text(self, x):
+        return self.clip_model.encode_text(x)
+    
+    def forward(self, img, text):
+        img = normalize(denormalize(img))
+        return self.clip_model(img, text)
+    
+    
