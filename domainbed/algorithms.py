@@ -1,7 +1,7 @@
 # Copyright (c) Facebook, Inc. and its affiliates. All Rights Reserved
 from .impl.original import *
 from .impl.clip import CLIP, CLIP_LP, CLIP_Finetune
-
+from .impl.w2d import W2D
 ALGORITHMS = [
     'ERM',
     'Fish',
@@ -34,7 +34,8 @@ ALGORITHMS = [
     'CausIRL_MMD',
     'CLIP',
     'CLIP_LP',
-    'CLIP_Finetune'
+    'CLIP_Finetune',
+    'W2D'
 ]
 
 def get_algorithm_class(algorithm_name):

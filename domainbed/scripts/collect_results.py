@@ -58,7 +58,7 @@ def print_table(table, header_text, row_labels, col_labels, colwidth=10,
     table.insert(0, col_labels)
 
     for r, row in enumerate(table):
-        misc.print_row(row, colwidth=colwidth, latex=latex)
+        misc.print_row(row, colwidth=colwidth, latex=latex, sep_=args.sep)
         if latex and r == 0:
             print("\\midrule")
     if latex:
@@ -148,6 +148,7 @@ if __name__ == "__main__":
         description="Domain generalization testbed")
     parser.add_argument("--input_dir", type=str, required=True)
     parser.add_argument("--latex", action="store_true")
+    parser.add_argument("--sep", type=str, default=" ")
     args = parser.parse_args()
 
     results_file = "results.tex" if args.latex else "results.txt"

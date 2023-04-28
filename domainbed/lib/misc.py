@@ -113,14 +113,15 @@ def seed_hash(*args):
 def print_separator():
     print("="*80)
 
-def print_row(row, colwidth=10, latex=False):
+def print_row(row, colwidth=10, latex=False, sep_=None):
     if latex:
         sep = " & "
         end_ = "\\\\"
     else:
-        sep = "  "
+        sep = " "
         end_ = ""
-
+    if sep_ is not None:
+        sep = sep_
     def format_val(x):
         if np.issubdtype(type(x), np.floating):
             x = "{:.10f}".format(x)
