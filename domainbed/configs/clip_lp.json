@@ -1,5 +1,4 @@
 {
     "clip_model": "RN50",
-    "resnet_dropout": 0,
-    "lr": 1e-3
+    "resnet_dropout": 0
 }
