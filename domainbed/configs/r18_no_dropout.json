@@ -1,0 +1,5 @@
+{
+    "model": "resnet",
+    "model_name": "resnet18",
+    "resnet_dropout": 0
+}

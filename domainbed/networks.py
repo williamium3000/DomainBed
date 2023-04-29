@@ -8,7 +8,7 @@ import torchvision.models
 from domainbed.lib import wide_resnet
 import copy
 
-
+from timm import create_model
 from clip import clip
 
 def remove_batch_norm_from_resnet(model):
@@ -72,7 +72,7 @@ class ResNet(torch.nn.Module):
     """ResNet with the softmax chopped off and the batchnorm frozen"""
     def __init__(self, input_shape, hparams):
         super(ResNet, self).__init__()
-        if hparams['resnet18']:
+        if hparams['model_name'] == "resnet18":
             self.network = torchvision.models.resnet18(pretrained=True)
             self.n_outputs = 512
         else:
@@ -116,6 +116,24 @@ class ResNet(torch.nn.Module):
         for m in self.network.modules():
             if isinstance(m, nn.BatchNorm2d):
                 m.eval()
+
+class ViT(torch.nn.Module):
+    """ResNet with the softmax chopped off and the batchnorm frozen"""
+    def __init__(self, input_shape, hparams):
+        super(ViT, self).__init__()
+        self.network = create_model(hparams["model_name"], pretrained=True)
+        self.n_outputs = self.network.num_features 
+        
+        # save memory
+        del self.network.head 
+        self.network.head = Identity()
+
+        self.hparams = hparams
+
+    def forward(self, x):
+        """Encode x into a feature vector of size n_outputs."""
+        return self.network(x)
+
 
 
 class MNIST_CNN(nn.Module):
@@ -192,7 +210,10 @@ def Featurizer(input_shape, hparams):
     elif input_shape[1:3] == (32, 32):
         return wide_resnet.Wide_ResNet(input_shape, 16, 2, 0.)
     elif input_shape[1:3] == (224, 224):
-        return ResNet(input_shape, hparams)
+        if hparams["model"] == "resnet":
+            return ResNet(input_shape, hparams)
+        elif hparams["model"] == "vit":
+            return ViT(input_shape[0], hparams)
     else:
         raise NotImplementedError
 

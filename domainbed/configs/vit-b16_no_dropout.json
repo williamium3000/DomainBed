@@ -1,0 +1,4 @@
+{
+    "model": "vit",
+    "model_name": "vit_base_patch16_224"
+}

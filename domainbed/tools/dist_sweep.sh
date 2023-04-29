@@ -1,6 +1,6 @@
 dataset=$1
 algorithms=$2
-save_path=work_dirs/sweep/$dataset/${algorithms}
+save_path=work_dirs/sweep/vit-b16/$dataset/${algorithms}
 
 python -m domainbed.scripts.sweep delete_incomplete\
        --datasets ${dataset}\
@@ -13,7 +13,7 @@ python -m domainbed.scripts.sweep delete_incomplete\
        --n_hparams 5\
        --n_trials 3\
        --skip_confirmation\
-       --hparams "$(<domainbed/configs/clip.json)"\
+       --hparams "$(<domainbed/configs/vit-b16_no_dropout.json)"\
        --output_dir $save_path
 CUDA_VISIBLE_DEVICES=6,7 python -m domainbed.scripts.sweep launch\
        --datasets ${dataset}\
@@ -26,5 +26,5 @@ CUDA_VISIBLE_DEVICES=6,7 python -m domainbed.scripts.sweep launch\
        --n_hparams 5\
        --n_trials 3\
        --skip_confirmation\
-       --hparams "$(<domainbed/configs/clip.json)"\
+       --hparams "$(<domainbed/configs/vit-b16_no_dropout.json)"\
        --output_dir $save_path
