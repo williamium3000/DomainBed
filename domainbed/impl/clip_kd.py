@@ -20,7 +20,7 @@ class ERM_CLIP_Logits(ERM):
     def __init__(self, input_shape, num_classes, num_domains, hparams):
         super(ERM_CLIP_Logits, self).__init__(input_shape, num_classes, num_domains,
                                   hparams)
-        
+        self.device = 'cuda' if torch.cuda.is_available() else 'cpu'
         self.model = networks.CLIP(self.hparams)
 
         for param in self.model.parameters():
@@ -59,6 +59,7 @@ class W2D_v2_CLIP_Logits(ERM):
     def __init__(self, input_shape, num_classes, num_domains, hparams):
         super(W2D_v2_CLIP_Logits, self).__init__(input_shape, num_classes, num_domains,
                                    hparams)
+        self.device = 'cuda' if torch.cuda.is_available() else 'cpu'
         self.drop_f = (1 - hparams['rsc_f_drop_factor']) * 100
         self.drop_b = (1 - hparams['rsc_b_drop_factor']) * 100
         self.num_classes = num_classes
@@ -100,11 +101,6 @@ class W2D_v2_CLIP_Logits(ERM):
         # predictions
         all_p = self.classifier(all_f)
         
-        logits_per_image, _ = self.model(all_x, self.prompt)
-
-        teacher_prob = F.softmax(logits_per_image / self.T, dim = 1)
-        student_log_prob = F.log_softmax(all_p / self.T, dim = 1)
-        kd_loss = F.kl_div(student_log_prob, teacher_prob, reduction = 'batchmean') * (self.T ** 2) 
 
         # Equation (1): compute gradients with respect to representation
         all_g = autograd.grad((all_p * all_o).sum(), all_f)[0]
@@ -133,7 +129,19 @@ class W2D_v2_CLIP_Logits(ERM):
         all_p_muted_again = self.classifier(all_f * mask)
 
         # Equation (5): update
-        loss = F.cross_entropy(all_p_muted_again, all_y) + self.alpha * kd_loss
+        loss = F.cross_entropy(all_p_muted_again, all_y)
+        
+        # add kd loss on logits
+        all_f = self.featurizer(all_x)
+        # predictions
+        all_p = self.classifier(all_f)
+        
+        logits_per_image, _ = self.model(all_x, self.prompt)
+
+        teacher_prob = F.softmax(logits_per_image / self.T, dim = 1)
+        student_log_prob = F.log_softmax(all_p / self.T, dim = 1)
+        kd_loss = F.kl_div(student_log_prob, teacher_prob, reduction = 'batchmean') * (self.T ** 2) 
+        loss = loss + self.alpha * kd_loss
         
         
         self.optimizer.zero_grad()
