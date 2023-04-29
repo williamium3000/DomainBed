@@ -2,6 +2,8 @@
 from .impl.original import *
 from .impl.clip import CLIP, CLIP_LP, CLIP_Finetune
 from .impl.w2d import W2D, W2D_v2
+from .impl.clip_kd import ERM_CLIP_Logits, W2D_v2_CLIP_Logits
+
 ALGORITHMS = [
     'ERM',
     'Fish',
@@ -36,7 +38,9 @@ ALGORITHMS = [
     'CLIP_LP',
     'CLIP_Finetune',
     'W2D',
-    'W2D_v2'
+    'W2D_v2',
+    'ERM_CLIP_Logits',
+    'W2D_v2_CLIP_Logits'
 ]
 
 def get_algorithm_class(algorithm_name):
