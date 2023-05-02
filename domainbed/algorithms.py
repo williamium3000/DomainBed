@@ -2,7 +2,8 @@
 from .impl.original import *
 from .impl.clip import CLIP, CLIP_LP, CLIP_Finetune
 from .impl.w2d import W2D, W2D_v2, W2D_EMA, W2D_v2_EMA
-from .impl.clip_kd import ERM_CLIP_Logits, W2D_v2_CLIP_Logits
+from .impl.clip_kd import ERM_CLIP_Logits, W2D_v2_CLIP_Logits, W2D_v2_CLIP_Logits_EMA, ERM_CLIP_Logits_EMA
+from .impl.sma import ERM_SMA
 
 ALGORITHMS = [
     'ERM',
@@ -42,7 +43,10 @@ ALGORITHMS = [
     'W2D_EMA',
     'W2D_v2_EMA',
     'ERM_CLIP_Logits',
-    'W2D_v2_CLIP_Logits'
+    'W2D_v2_CLIP_Logits',
+    'ERM_SMA',
+    'W2D_v2_CLIP_Logits_EMA',
+    'ERM_CLIP_Logits_EMA'
 ]
 
 def get_algorithm_class(algorithm_name):

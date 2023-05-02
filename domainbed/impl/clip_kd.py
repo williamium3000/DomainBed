@@ -9,7 +9,7 @@ from domainbed import networks
 import clip
 from .base import Algorithm
 from .original import ERM
-
+from .sma import MovingAvg
 
 
 class ERM_CLIP_Logits(ERM):
@@ -54,6 +54,24 @@ class ERM_CLIP_Logits(ERM):
 
     def predict(self, x):
         return self.network(x)
+
+
+class ERM_CLIP_Logits_EMA(ERM_CLIP_Logits, MovingAvg):
+    """
+    Empirical Risk Minimization (ERM) with Simple Moving Average (SMA) prediction model
+    """
+    def __init__(self, input_shape, num_classes, num_domains, hparams):
+        ERM_CLIP_Logits.__init__(self, input_shape, num_classes, num_domains, hparams)
+        MovingAvg.__init__(self, self.network)
+
+    def update(self, minibatches, unlabeled=None):
+        loss_dict = ERM_CLIP_Logits.update(self, minibatches, unlabeled)
+        self.update_sma()
+        return loss_dict
+    
+    def predict(self, x):
+        self.network_sma.eval()
+        return self.network_sma(x)
 
 class W2D_v2_CLIP_Logits(ERM):
     def __init__(self, input_shape, num_classes, num_domains, hparams):
@@ -150,3 +168,19 @@ class W2D_v2_CLIP_Logits(ERM):
 
         return {'loss': loss.item()}
 
+class W2D_v2_CLIP_Logits_EMA(W2D_v2_CLIP_Logits, MovingAvg):
+    """
+    Empirical Risk Minimization (ERM) with Simple Moving Average (SMA) prediction model
+    """
+    def __init__(self, input_shape, num_classes, num_domains, hparams):
+        W2D_v2_CLIP_Logits.__init__(self, input_shape, num_classes, num_domains, hparams)
+        MovingAvg.__init__(self, self.network)
+
+    def update(self, minibatches, unlabeled=None, step=None):
+        loss_dict = W2D_v2_CLIP_Logits.update(self, minibatches, unlabeled=unlabeled, step=step)
+        self.update_sma()
+        return loss_dict
+    
+    def predict(self, x):
+        self.network_sma.eval()
+        return self.network_sma(x)

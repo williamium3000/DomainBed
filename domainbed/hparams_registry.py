@@ -139,7 +139,7 @@ def _hparams(algorithm, dataset, random_seed):
         _hparam('lr_d', 1e-3, lambda r: 10**r.uniform(-4.5, -2.5))
 
     elif algorithm == "W2D" or algorithm == "W2D_v2" or algorithm == "W2D_v2_CLIP_Logits" \
-        or algorithm == "W2D_EMA" or algorithm == "W2D_v2_EMA":
+        or algorithm == "W2D_EMA" or algorithm == "W2D_v2_EMA" or algorithm == "W2D_v2_CLIP_Logits_EMA":
         _hparam('pass_step', True, lambda r: True)
         _hparam('rsc_f_drop_factor', 1 / 4, lambda r: r.uniform(0.1, 0.4))
         _hparam('last_k_epoch', 1 / 4, lambda r: r.uniform(0.2, 0.4))
@@ -150,7 +150,7 @@ def _hparams(algorithm, dataset, random_seed):
             _hparam('rsc_b_drop_factor', 1 / 3, lambda r: r.uniform(0.1, 0.4))
             _hparam('worst_case_p', 1 / 3, lambda r: r.uniform(0.2, 0.4))
     
-    if algorithm == "W2D_v2_CLIP_Logits" or algorithm == "ERM_CLIP_Logits":
+    if algorithm == "W2D_v2_CLIP_Logits" or algorithm == "ERM_CLIP_Logits" or algorithm == "W2D_v2_CLIP_Logits_EMA" or algorithm == "ERM_CLIP_Logits_EMA":
         _hparam('T', 3, lambda r: r.uniform(2., 4.))
         _hparam('alpha', 1.0, lambda r: r.uniform(0.5, 1.5))
 
