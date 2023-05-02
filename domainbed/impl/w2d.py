@@ -201,8 +201,8 @@ class W2D_v2_EMA(W2D_v2, MovingAvg):
         W2D_v2.__init__(self, input_shape, num_classes, num_domains, hparams)
         MovingAvg.__init__(self, self.network)
 
-    def update(self, minibatches, unlabeled=None, step=None, swa_model=None):
-        loss_dict = W2D_v2.update(self, minibatches, unlabeled=unlabeled, step=step, swa_model=swa_model)
+    def update(self, minibatches, unlabeled=None, step=None):
+        loss_dict = W2D_v2.update(self, minibatches, unlabeled=unlabeled, step=step)
         self.update_sma()
         return loss_dict
     
