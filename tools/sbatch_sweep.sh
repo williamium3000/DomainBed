@@ -1,6 +1,6 @@
 #!/bin/bash -l
 #SBATCH --job-name=sweep
-#SBATCH --time=24:0:0
+#SBATCH --time=48:0:0
 #SBATCH --partition=a100
 #SBATCH --nodes=1
 #SBATCH --ntasks-per-node=1
@@ -15,7 +15,7 @@ module load anaconda
 module load imagemagick/7.1.0
 conda activate pytorch2.0
 
-algorithm=ERM
+algorithm=ERM_CLIP_Logits_EMA
 dataset=PACS
 now=$(date +"%Y%m%d_%H%M%S")
 
