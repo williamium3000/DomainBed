@@ -1,7 +1,7 @@
 # Copyright (c) Facebook, Inc. and its affiliates. All Rights Reserved
 from .impl.original import *
 from .impl.clip import CLIP, CLIP_LP, CLIP_Finetune
-from .impl.w2d import W2D, W2D_v2
+from .impl.w2d import W2D, W2D_v2, W2D_EMA, W2D_v2_EMA
 from .impl.clip_kd import ERM_CLIP_Logits, W2D_v2_CLIP_Logits
 
 ALGORITHMS = [
@@ -39,6 +39,8 @@ ALGORITHMS = [
     'CLIP_Finetune',
     'W2D',
     'W2D_v2',
+    'W2D_EMA',
+    'W2D_v2_EMA',
     'ERM_CLIP_Logits',
     'W2D_v2_CLIP_Logits'
 ]

@@ -9,6 +9,7 @@ import numpy as np
 from collections import defaultdict
 
 from .original import ERM
+from .sma import MovingAvg
 class W2D(ERM):
     def __init__(self, input_shape, num_classes, num_domains, hparams):
         super(W2D, self).__init__(input_shape, num_classes, num_domains,
@@ -191,3 +192,37 @@ class W2D_v2(ERM):
 
         return {'loss': loss.item()}
 
+
+class W2D_v2_EMA(W2D_v2, MovingAvg):
+    """
+    Empirical Risk Minimization (ERM) with Simple Moving Average (SMA) prediction model
+    """
+    def __init__(self, input_shape, num_classes, num_domains, hparams):
+        W2D_v2.__init__(self, input_shape, num_classes, num_domains, hparams)
+        MovingAvg.__init__(self, self.network)
+
+    def update(self, minibatches, unlabeled=None):
+        loss_dict = super().update(self, minibatches, unlabeled=None)
+        self.update_sma()
+        return loss_dict
+    
+    def predict(self, x):
+        self.network_sma.eval()
+        return self.network_sma(x)
+    
+class W2D_EMA(W2D, MovingAvg):
+    """
+    Empirical Risk Minimization (ERM) with Simple Moving Average (SMA) prediction model
+    """
+    def __init__(self, input_shape, num_classes, num_domains, hparams):
+        W2D.__init__(self, input_shape, num_classes, num_domains, hparams)
+        MovingAvg.__init__(self, self.network)
+
+    def update(self, minibatches, unlabeled=None):
+        loss_dict = super().update(self, minibatches, unlabeled=None)
+        self.update_sma()
+        return loss_dict
+    
+    def predict(self, x):
+        self.network_sma.eval()
+        return self.network_sma(x)

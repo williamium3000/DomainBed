@@ -13,7 +13,7 @@ python -m domainbed.scripts.sweep delete_incomplete\
        --n_hparams 5\
        --n_trials 3\
        --skip_confirmation\
-       --hparams "$(<domainbed/configs/vit-b16_no_dropout.json)"\
+       --hparams "$(<configs/vit-b16_no_dropout.json)"\
        --output_dir $save_path
 CUDA_VISIBLE_DEVICES=6,7 python -m domainbed.scripts.sweep launch\
        --datasets ${dataset}\
@@ -26,5 +26,5 @@ CUDA_VISIBLE_DEVICES=6,7 python -m domainbed.scripts.sweep launch\
        --n_hparams 5\
        --n_trials 3\
        --skip_confirmation\
-       --hparams "$(<domainbed/configs/vit-b16_no_dropout.json)"\
+       --hparams "$(<configs/vit-b16_no_dropout.json)"\
        --output_dir $save_path
