@@ -31,7 +31,7 @@ class W2D(ERM):
         # sample dim
         if step <= int(5000 * (1 - self.k)):
             with torch.no_grad():
-                all_p = self.predict(all_x)
+                all_p = self.network(all_x)
                 loss_pre = F.cross_entropy(all_p, all_y, reduction='none')
             _, loss_sort_index = torch.sort(-loss_pre)
             loss_sort_index = loss_sort_index[:int(loss_pre.shape[0] * self.p)].long()
@@ -144,7 +144,7 @@ class W2D_v2(ERM):
         # sample dim
         if step <= int(5000 * (1 - self.k)):
             with torch.no_grad():
-                all_p = self.predict(all_x)
+                all_p = self.network(all_x)
                 loss_pre = F.cross_entropy(all_p, all_y, reduction='none')
             _, loss_sort_index = torch.sort(-loss_pre)
             loss_sort_index = loss_sort_index[:int(loss_pre.shape[0] * self.p)].long()

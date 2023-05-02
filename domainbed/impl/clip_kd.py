@@ -32,11 +32,10 @@ class ERM_CLIP_Logits(ERM):
         self.alpha = self.hparams['alpha']
         
     def update(self, minibatches, unlabeled=None):
-        self.train()
         all_x = torch.cat([x for x, y in minibatches])
         all_y = torch.cat([y for x, y in minibatches])
         
-        pred = self.predict(all_x)
+        pred = self.network(all_x)
         loss = F.cross_entropy(pred, all_y)
         
         logits_per_image, _ = self.model(all_x, self.prompt)
@@ -105,7 +104,7 @@ class W2D_v2_CLIP_Logits(ERM):
         # sample dim
         if step <= int(5000 * (1 - self.k)):
             with torch.no_grad():
-                all_p = self.predict(all_x)
+                all_p = self.network(all_x)
                 loss_pre = F.cross_entropy(all_p, all_y, reduction='none')
             _, loss_sort_index = torch.sort(-loss_pre)
             loss_sort_index = loss_sort_index[:int(loss_pre.shape[0] * self.p)].long()

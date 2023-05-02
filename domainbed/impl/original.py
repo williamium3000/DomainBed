@@ -46,7 +46,7 @@ class ERM(Algorithm):
         self.train()
         all_x = torch.cat([x for x, y in minibatches])
         all_y = torch.cat([y for x, y in minibatches])
-        loss = F.cross_entropy(self.predict(all_x), all_y)
+        loss = F.cross_entropy(self.network(all_x), all_y)
 
         self.optimizer.zero_grad()
         loss.backward()

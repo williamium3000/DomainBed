@@ -15,8 +15,9 @@ module load anaconda
 module load imagemagick/7.1.0
 conda activate pytorch2.0
 
-algorithm=ERM_CLIP_Logits_EMA
-dataset=PACS
+algorithm=$1
+dataset=$2
+output_dir=$3
 now=$(date +"%Y%m%d_%H%M%S")
 
 
@@ -31,5 +32,5 @@ srun --kill-on-bad-exit=1 python -m domainbed.scripts.sweep launch\
        --n_hparams 5\
        --n_trials 3\
        --skip_confirmation\
-       --hparams "$(<configs/${algorithm}/hparams.json)"\
-       --output_dir "work_dirs/sweep/${algorithm}/${dataset}" 2>&1 | tee work_dirs/sweep/${algorithm}/${dataset}/$now.txt
+       --hparams "$(<configs/clip.json)"\
+       --output_dir $output_dir 2>&1 | tee $output_dir/$now.txt
