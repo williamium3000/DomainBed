@@ -246,6 +246,7 @@ class ERM_SMA_HardExampleMining(Algorithm, MovingAvg):
                         )
         MovingAvg.__init__(self, self.network)
         self.p = hparams['worst_case_p']
+        self.k = hparams['last_k_epoch']
         
     def update(self, minibatches, step=None, unlabeled=None):
         all_x = torch.cat([x for x,y in minibatches])
@@ -291,6 +292,7 @@ class ERM_SMA_CLIPDistill(Algorithm, MovingAvg):
                         weight_decay=self.hparams['weight_decay']
                         )
         MovingAvg.__init__(self, self.network)
+        self.device = 'cuda' if torch.cuda.is_available() else 'cpu'
         self.distill_on_easy = hparams["distill_on_easy"]
         self.model = networks.CLIP(self.hparams)
 
@@ -308,15 +310,14 @@ class ERM_SMA_CLIPDistill(Algorithm, MovingAvg):
         all_x = torch.cat([x for x,y in minibatches])
         all_y = torch.cat([y for x,y in minibatches])
         # sample dim
-        if step <= int(5000 * (1 - self.k)):
-            with torch.no_grad():
-                all_p = self.network(all_x)
-                loss_pre = F.cross_entropy(all_p, all_y, reduction='none')
-            _, loss_sort_index = torch.sort(-loss_pre)
-            if self.distill_on_easy:
-                distill_index = loss_sort_index[-int(loss_pre.shape[0] * self.easy_p):].long()
-            else:
-                distill_index = loss_sort_index[:int(loss_pre.shape[0] * self.worst_p)].long()
+        with torch.no_grad():
+            all_p = self.network(all_x)
+            loss_pre = F.cross_entropy(all_p, all_y, reduction='none')
+        _, loss_sort_index = torch.sort(-loss_pre)
+        if self.distill_on_easy:
+            distill_index = loss_sort_index[-int(loss_pre.shape[0] * self.easy_p):].long()
+        else:
+            distill_index = loss_sort_index[:int(loss_pre.shape[0] * self.worst_p)].long()
         
         loss = F.cross_entropy(self.network(all_x), all_y)
         
