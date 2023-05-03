@@ -104,7 +104,7 @@ class CLIP_FinetuneWithTextFreeze(ERM):
         self.train()
         all_x = torch.cat([x for x, y in minibatches])
         all_y = torch.cat([y for x, y in minibatches])
-        logits_per_image, _ = self.model(all_x, self.prompt)
+        logits_per_image, _ = self.featurizer(all_x, self.prompt)
         loss = F.cross_entropy(logits_per_image, all_y)
 
         self.optimizer.zero_grad()
@@ -114,7 +114,7 @@ class CLIP_FinetuneWithTextFreeze(ERM):
         return {'loss': loss.item()}
 
     def predict(self, x):
-        logits_per_image, _ = self.model(x, self.prompt)
+        logits_per_image, _ = self.featurizer(x, self.prompt)
         return logits_per_image.softmax(dim=-1)
     
 
