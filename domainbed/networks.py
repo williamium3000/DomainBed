@@ -278,9 +278,9 @@ class CLIP(nn.Module):
         # ['RN50', 'RN101', 'RN50x4', 'RN50x16', 'RN50x64', 'ViT-B/32', 'ViT-B/16', 'ViT-L/14', 'ViT-L/14@336px']
         if hparams['clip_model'] not in clip.available_models():
             raise ValueError(f"backbone {hparams['clip_model']} not available")
-
+        download_root = hparams.get("download_root", None)
         print(f'Using {hparams["clip_model"]}...')
-        self.clip_model = clip.load(hparams['clip_model'])[0].float()
+        self.clip_model = clip.load(hparams['clip_model'], download_root=download_root)[0].float()
         #self.clip_model = self.clip_model.eval()
 
         # embedding dimensions based on CLIP paper https://arxiv.org/pdf/2103.00020.pdf
