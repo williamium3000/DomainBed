@@ -109,22 +109,7 @@ class ResNet(torch.nn.Module):
         self.hparams = hparams
         self.dropout = nn.Dropout(hparams['resnet_dropout'])
     
-    def _forward_impl(self, x):
-        # See note [TorchScript super()]
-        x = self.network.conv1(x)
-        x = self.network.bn1(x)
-        x = self.network.relu(x)
-        x = self.network.maxpool(x)
-
-        x = self.network.layer1(x)
-        x = self.network.layer2(x)
-        x = self.network.layer3(x)
-        x = self.network.layer4(x)
-
-        x = self.network.avgpool(x)
-        x = torch.flatten(x, 1)
-
-        return x
+    
     def forward(self, x, return_feature=False):
         """Encode x into a feature vector of size n_outputs."""
         x = self.network.conv1(x)
@@ -140,10 +125,10 @@ class ResNet(torch.nn.Module):
         out = self.network.avgpool(feat)
         out = torch.flatten(out, 1)
         
-        if not return_feature:
-            return self.dropout(out)
-        else:
+        if return_feature:
             return feat
+        else:
+            return self.dropout(out)
 
     def train(self, mode=True):
         """
