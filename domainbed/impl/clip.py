@@ -154,9 +154,9 @@ class LanguageDrivenDG(ERM):
     def update(self, minibatches, unlabeled=None):
         all_x = torch.cat([x for x, y in minibatches])
         all_y = torch.cat([y for x, y in minibatches])
-        
-        features = self.atten_pool(self.featurizer(all_x, True)) # b, d, h, w
-        features = features.flatten(2).permute(0, 2, 1) # bs N, d
+
+        features = self.atten_pool(self.featurizer(all_x, return_feature=True)) # b, d, h, w
+        # features = features.flatten(2).permute(0, 2, 1) # bs N, d
         image_features = features / features.norm(dim=-1, keepdim=True) # bs N, d
         
         with torch.no_grad():
@@ -174,8 +174,8 @@ class LanguageDrivenDG(ERM):
         return {'loss': loss.item()}
 
     def predict(self, x):
-        features = self.atten_pool(self.featurizer(all_x, True)) # b, d, h, w
-        features = features.flatten(2).permute(0, 2, 1) # bs N, d
+        features = self.atten_pool(self.featurizer(x, return_feature=True)) # b, d, h, w
+        # features = features.flatten(2).permute(0, 2, 1) # bs N, d
         image_features = features / features.norm(dim=-1, keepdim=True) # bs N, d
         
         text_features = self.clip_model.forward_text(self.prompt)
