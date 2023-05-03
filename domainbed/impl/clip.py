@@ -101,7 +101,6 @@ class CLIP_FinetuneWithTextFreeze(ERM):
         self.prompt = torch.cat([clip.tokenize(f'a photo of a {cls_name}') for cls_name in hparams['class_names']]).to(self.device)
         
     def update(self, minibatches, unlabeled=None):
-        self.train()
         all_x = torch.cat([x for x, y in minibatches])
         all_y = torch.cat([y for x, y in minibatches])
         logits_per_image, _ = self.featurizer(all_x, self.prompt)
@@ -120,34 +119,39 @@ class CLIP_FinetuneWithTextFreeze(ERM):
 
 class LanguageDrivenDG(ERM): 
     def __init__(self, input_shape, num_classes, num_domains, hparams):
-        super(CLIP_FinetuneWithTextFreeze, self).__init__(input_shape, num_classes, num_domains, hparams)
+        super(LanguageDrivenDG, self).__init__(input_shape, num_classes, num_domains, hparams)
         self.device = 'cuda' if torch.cuda.is_available() else 'cpu'
         
         self.featurizer = networks.Featurizer(input_shape, self.hparams)
         out_feature = self.featurizer.n_outputs
+        
+        self.clip_model = networks.CLIP(self.hparams)
+        for param in self.clip_model.parameters():
+            param.requires_grad = False
+        
+        if self.clip_model.has_cls_token:
+            out_feature_clip = self.clip_model.width
+        else:
+            out_feature_clip = self.clip_model.num_features
+            
         self.atten_pool = AttentionPool2d(input_shape[-1] // 32, out_feature, 32, out_feature_clip)
 
         self.network = nn.Sequential(self.featurizer, self.atten_pool)
         
         
-        self.clip_model = networks.CLIP(self.hparams)
-        if self.return_cls:
-            out_feature_clip = self.clip_model.width
-        else:
-            out_feature_clip = self.clip_model.num_features
+        
         
         t = hparams.get("t", 1.0)
         self.t = nn.Parameter(torch.ones([]) / t, requires_grad=True)
         self.prompt = torch.cat([clip.tokenize(f'a photo of a {cls_name}') for cls_name in hparams['class_names']]).to(self.device)
         
         self.optimizer = torch.optim.Adam(
-            [self.network.parameters(), self.t],
+            list(self.network.parameters()) + [self.t.data, ],
             lr=self.hparams["lr"],
             weight_decay=self.hparams['weight_decay']
         )
         
     def update(self, minibatches, unlabeled=None):
-        self.train()
         all_x = torch.cat([x for x, y in minibatches])
         all_y = torch.cat([y for x, y in minibatches])
         

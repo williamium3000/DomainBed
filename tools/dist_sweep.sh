@@ -15,7 +15,7 @@ python -m domainbed.scripts.sweep delete_incomplete\
        --skip_confirmation\
        --hparams "$(<configs/clip_ft.json)"\
        --output_dir $save_path
-CUDA_VISIBLE_DEVICES=0,1,2 python -m domainbed.scripts.sweep launch\
+CUDA_VISIBLE_DEVICES=0 python -m domainbed.scripts.sweep launch\
        --datasets ${dataset}\
        --algorithms $algorithms \
        --data_dir ./domainbed/data\
