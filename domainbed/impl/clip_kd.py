@@ -322,9 +322,11 @@ class ERM_SMA_CLIPDistill(Algorithm, MovingAvg):
         loss = F.cross_entropy(self.network(all_x), all_y)
         
         logits_per_image, _ = self.model(all_x[distill_index], self.prompt)
-
+        student_p = self.network(all_x[distill_index])
+        
         teacher_prob = F.softmax(logits_per_image / self.T, dim = 1)
-        student_log_prob = F.log_softmax(all_p / self.T, dim = 1)
+        student_log_prob = F.log_softmax(student_p / self.T, dim = 1)
+        
         kd_loss = F.kl_div(student_log_prob, teacher_prob, reduction = 'batchmean') * (self.T ** 2) 
         loss = loss + self.alpha * kd_loss
         
