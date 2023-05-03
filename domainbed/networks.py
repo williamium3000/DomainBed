@@ -72,13 +72,18 @@ class ResNet(torch.nn.Module):
     """ResNet with the softmax chopped off and the batchnorm frozen"""
     def __init__(self, input_shape, hparams):
         super(ResNet, self).__init__()
+        checkpoint_path = hparams.get("checkpoint_path", None)
+        if checkpoint_path is None:
+            pretrained = True
         if hparams['model_name'] == "resnet18":
-            self.network = torchvision.models.resnet18(pretrained=True)
+            self.network = torchvision.models.resnet18(pretrained=pretrained)
             self.n_outputs = 512
         else:
-            self.network = torchvision.models.resnet50(pretrained=True)
+            self.network = torchvision.models.resnet50(pretrained=pretrained)
             self.n_outputs = 2048
-
+        if checkpoint_path is not None:
+            self.network.load_state_dict(torch.load(checkpoint_path, map_location="cpu"))
+            
         # self.network = remove_batch_norm_from_resnet(self.network)
 
         # adapt number of channels
@@ -121,7 +126,8 @@ class ViT(torch.nn.Module):
     """ResNet with the softmax chopped off and the batchnorm frozen"""
     def __init__(self, input_shape, hparams):
         super(ViT, self).__init__()
-        self.network = create_model(hparams["model_name"], pretrained=True)
+        checkpoint_path = hparams.get("checkpoint_path", None)
+        self.network = create_model(hparams["model_name"], pretrained=True if checkpoint_path is None else False, checkpoint_path=checkpoint_path)
         self.n_outputs = self.network.num_features 
         
         # save memory

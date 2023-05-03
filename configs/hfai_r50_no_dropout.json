@@ -1,0 +1,6 @@
+{
+    "model": "resnet",
+    "model_name": "resnet50",
+    "resnet_dropout": 0,
+    "checkpoint_path": "pretrained/resnet50-0676ba61.pth"
+}
