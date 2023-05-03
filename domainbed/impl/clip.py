@@ -1,7 +1,10 @@
 import torch
 from torch.nn import functional as F
+from torch import nn
+
 from domainbed import networks
 import clip
+from clip.model import AttentionPool2d
 from .base import Algorithm
 from .original import ERM
 
@@ -113,3 +116,66 @@ class CLIP_FinetuneWithTextFreeze(ERM):
     def predict(self, x):
         logits_per_image, _ = self.featurizer(x, self.prompt)
         return logits_per_image.softmax(dim=-1)
+    
+
+class LanguageDrivenDG(ERM): 
+    def __init__(self, input_shape, num_classes, num_domains, hparams):
+        super(CLIP_FinetuneWithTextFreeze, self).__init__(input_shape, num_classes, num_domains, hparams)
+        self.device = 'cuda' if torch.cuda.is_available() else 'cpu'
+        
+        self.featurizer = networks.Featurizer(input_shape, self.hparams)
+        out_feature = self.featurizer.n_outputs
+        self.atten_pool = AttentionPool2d(input_shape[-1] // 32, out_feature, 32, out_feature_clip)
+
+        self.network = nn.Sequential(self.featurizer, self.atten_pool)
+        
+        
+        self.clip_model = networks.CLIP(self.hparams)
+        if self.return_cls:
+            out_feature_clip = self.clip_model.width
+        else:
+            out_feature_clip = self.clip_model.num_features
+        
+        t = hparams.get("t", 1.0)
+        self.t = nn.Parameter(torch.ones([]) / t, requires_grad=True)
+        self.prompt = torch.cat([clip.tokenize(f'a photo of a {cls_name}') for cls_name in hparams['class_names']]).to(self.device)
+        
+        self.optimizer = torch.optim.Adam(
+            [self.network.parameters(), self.t],
+            lr=self.hparams["lr"],
+            weight_decay=self.hparams['weight_decay']
+        )
+        
+    def update(self, minibatches, unlabeled=None):
+        self.train()
+        all_x = torch.cat([x for x, y in minibatches])
+        all_y = torch.cat([y for x, y in minibatches])
+        
+        features = self.network(all_x) # b, d, h, w
+        features = features.flatten(2).permute(0, 2, 1) # bs N, d
+        image_features = features / features.norm(dim=-1, keepdim=True) # bs N, d
+        
+        with torch.no_grad():
+            text_features = self.clip_model.forward_text(self.prompt)
+            text_features /= text_features.norm(dim=-1, keepdim=True).detach()
+        
+        similarity  = self.t * image_features @ text_features.T
+        
+        loss = F.cross_entropy(similarity, all_y)
+
+        self.optimizer.zero_grad()
+        loss.backward()
+        self.optimizer.step()
+
+        return {'loss': loss.item()}
+
+    def predict(self, x):
+        features = self.network(x) # b, d, h, w
+        features = features.flatten(2).permute(0, 2, 1) # bs N, d
+        image_features = features / features.norm(dim=-1, keepdim=True) # bs N, d
+        
+        text_features = self.clip_model.forward_text(self.prompt)
+        text_features /= text_features.norm(dim=-1, keepdim=True)
+        
+        similarity  = image_features @ text_features.T
+        return similarity
