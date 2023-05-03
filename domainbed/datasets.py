@@ -75,14 +75,12 @@ class ImageFolderWithDomain(ImageFolder):
 
     def __init__(
         self,
-        domain_name,
         domain_idx,
         *args, **kwargs
     ):
         super().__init__(
             *args, **kwargs
         )
-        self.domain_name = self.domain_name
         self.domain_idx = self.domain_idx
     def __getitem__(self, index: int):
         """
@@ -99,7 +97,8 @@ class ImageFolderWithDomain(ImageFolder):
         if self.target_transform is not None:
             target = self.target_transform(target)
 
-        return sample, target, self.domain_name, self.domain_idx
+        return sample, target, self.domain_idx
+
 
 class MultipleDomainDataset:
     N_STEPS = 5001           # Default, subclasses may override

@@ -75,6 +75,9 @@ class ResNet(torch.nn.Module):
         checkpoint_path = hparams.get("checkpoint_path", None)
         if checkpoint_path is None:
             pretrained = True
+        else:
+            pretrained = False
+            
         if hparams['model_name'] == "resnet18":
             self.network = torchvision.models.resnet18(pretrained=pretrained)
             self.n_outputs = 512
