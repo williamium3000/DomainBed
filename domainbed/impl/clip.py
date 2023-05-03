@@ -155,7 +155,7 @@ class LanguageDrivenDG(ERM):
         all_x = torch.cat([x for x, y in minibatches])
         all_y = torch.cat([y for x, y in minibatches])
         
-        features = self.network(all_x) # b, d, h, w
+        features = self.atten_pool(self.featurizer(all_x, True)) # b, d, h, w
         features = features.flatten(2).permute(0, 2, 1) # bs N, d
         image_features = features / features.norm(dim=-1, keepdim=True) # bs N, d
         
@@ -174,7 +174,7 @@ class LanguageDrivenDG(ERM):
         return {'loss': loss.item()}
 
     def predict(self, x):
-        features = self.network(x) # b, d, h, w
+        features = self.atten_pool(self.featurizer(all_x, True)) # b, d, h, w
         features = features.flatten(2).permute(0, 2, 1) # bs N, d
         image_features = features / features.norm(dim=-1, keepdim=True) # bs N, d
         
