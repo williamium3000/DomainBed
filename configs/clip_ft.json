@@ -1,4 +1,6 @@
 {
     "clip_model": "RN50",
-    "resnet_dropout": 0
+    "resnet_dropout": 0,
+    "model": "resnet",
+    "model_name": "resnet50"
 }
