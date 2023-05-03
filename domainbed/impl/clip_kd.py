@@ -10,7 +10,7 @@ import clip
 from .base import Algorithm
 from .original import ERM
 from .sma import MovingAvg
-
+from torch.cuda.amp import autocast, GradScaler
 
 class ERM_CLIP_Logits(ERM):
     """
@@ -246,6 +246,7 @@ class ERM_SMA_HardExampleMining(Algorithm, MovingAvg):
                         )
         MovingAvg.__init__(self, self.network)
         self.p = hparams['worst_case_p']
+        self.scaler = GradScaler()
         
     def update(self, minibatches, step=None, unlabeled=None):
         all_x = torch.cat([x for x,y in minibatches])
@@ -257,15 +258,17 @@ class ERM_SMA_HardExampleMining(Algorithm, MovingAvg):
                 loss_pre = F.cross_entropy(all_p, all_y, reduction='none')
             _, loss_sort_index = torch.sort(-loss_pre)
             loss_sort_index_hard = loss_sort_index[:int(loss_pre.shape[0] * self.p)].long()
-            loss_sort_index_easy = loss_sort_index[int(loss_pre.shape[0] * self.p):].long()
         
-        
-        all_hard_x = all_x[loss_sort_index_hard]
-        all_hard_y = all_y[loss_sort_index_hard]
-        loss = F.cross_entropy(self.network(all_hard_x), all_hard_y)
+        with autocast():
+            all_hard_x = all_x[loss_sort_index_hard]
+            all_hard_y = all_y[loss_sort_index_hard]
+            loss = F.cross_entropy(self.network(all_hard_x), all_hard_y)
+            
         self.optimizer.zero_grad()
-        loss.backward()
-        self.optimizer.step()
+        self.scaler.scale(loss).backward()
+        self.scaler.step(self.optimizer)
+        self.scaler.update()
+        
         self.update_sma()
         return {'loss': loss.item()}
 
