@@ -151,6 +151,7 @@ def _hparams(algorithm, dataset, random_seed):
             _hparam('worst_case_p', 1 / 3, lambda r: r.choice([0.2, 0.25, 0.3]))
     elif algorithm == "ERM_SMA_HardExampleMining":
         _hparam('worst_case_p', 1 / 3, lambda r: r.choice([0.2, 0.25, 0.3]))
+        _hparam('last_k_epoch', 1 / 4, lambda r: r.uniform(0.2, 0.4))
     elif algorithm == "ERM_SMA_CLIPDistill":
         _hparam('worst_case_p', 1 / 3, lambda r: r.choice([0.2, 0.25, 0.3]))
         _hparam('easy_case_p', 1 / 3, lambda r: r.choice([0.2, 0.25, 0.3]))
