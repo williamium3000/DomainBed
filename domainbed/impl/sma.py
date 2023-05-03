@@ -60,3 +60,4 @@ class ERM_SMA(Algorithm, MovingAvg):
     def predict(self, x):
         self.network_sma.eval()
         return self.network_sma(x)
+    

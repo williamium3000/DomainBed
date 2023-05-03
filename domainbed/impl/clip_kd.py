@@ -183,3 +183,156 @@ class W2D_v2_CLIP_Logits_EMA(W2D_v2_CLIP_Logits, MovingAvg):
     def predict(self, x):
         self.network_sma.eval()
         return self.network_sma(x)
+
+class ERM_SMA_HardExampleMining(Algorithm, MovingAvg):
+    """
+    Empirical Risk Minimization (ERM) with Simple Moving Average (SMA) prediction model
+    """
+    def __init__(self, input_shape, num_classes, num_domains, hparams):
+        Algorithm.__init__(self, input_shape, num_classes, num_domains, hparams)
+        self.featurizer = networks.Featurizer(input_shape, self.hparams)
+        self.classifier = networks.Classifier(
+                    self.featurizer.n_outputs,
+                    num_classes,
+                    self.hparams['nonlinear_classifier'])
+        self.network = nn.Sequential(self.featurizer, self.classifier)
+        self.optimizer = torch.optim.Adam(
+                        self.network.parameters(),
+                        lr=self.hparams["lr"],
+                        weight_decay=self.hparams['weight_decay']
+                        )
+        MovingAvg.__init__(self, self.network)
+
+    def update(self, minibatches, step=None, unlabeled=None):
+        all_x = torch.cat([x for x,y in minibatches])
+        all_y = torch.cat([y for x,y in minibatches])
+        # sample dim
+        if step <= int(5000 * (1 - self.k)):
+            with torch.no_grad():
+                all_p = self.network(all_x)
+                loss_pre = F.cross_entropy(all_p, all_y, reduction='none')
+            _, loss_sort_index = torch.sort(-loss_pre)
+            loss_sort_index = loss_sort_index[:int(loss_pre.shape[0] * self.p)].long()
+            all_x = all_x[loss_sort_index]
+            all_y = all_y[loss_sort_index]
+            
+        loss = F.cross_entropy(self.network(all_x), all_y)
+        self.optimizer.zero_grad()
+        loss.backward()
+        self.optimizer.step()
+        self.update_sma()
+        return {'loss': loss.item()}
+
+    def predict(self, x):
+        self.network_sma.eval()
+        return self.network_sma(x)
+
+class ERM_SMA_HardExampleMining(Algorithm, MovingAvg):
+    """
+    Empirical Risk Minimization (ERM) with Simple Moving Average (SMA) prediction model
+    """
+    def __init__(self, input_shape, num_classes, num_domains, hparams):
+        Algorithm.__init__(self, input_shape, num_classes, num_domains, hparams)
+        self.featurizer = networks.Featurizer(input_shape, self.hparams)
+        self.classifier = networks.Classifier(
+                    self.featurizer.n_outputs,
+                    num_classes,
+                    self.hparams['nonlinear_classifier'])
+        self.network = nn.Sequential(self.featurizer, self.classifier)
+        self.optimizer = torch.optim.Adam(
+                        self.network.parameters(),
+                        lr=self.hparams["lr"],
+                        weight_decay=self.hparams['weight_decay']
+                        )
+        MovingAvg.__init__(self, self.network)
+        self.p = hparams['worst_case_p']
+        
+    def update(self, minibatches, step=None, unlabeled=None):
+        all_x = torch.cat([x for x,y in minibatches])
+        all_y = torch.cat([y for x,y in minibatches])
+        # sample dim
+        if step <= int(5000 * (1 - self.k)):
+            with torch.no_grad():
+                all_p = self.network(all_x)
+                loss_pre = F.cross_entropy(all_p, all_y, reduction='none')
+            _, loss_sort_index = torch.sort(-loss_pre)
+            loss_sort_index_hard = loss_sort_index[:int(loss_pre.shape[0] * self.p)].long()
+            loss_sort_index_easy = loss_sort_index[int(loss_pre.shape[0] * self.p):].long()
+        
+        
+        all_hard_x = all_x[loss_sort_index_hard]
+        all_hard_y = all_y[loss_sort_index_hard]
+        loss = F.cross_entropy(self.network(all_hard_x), all_hard_y)
+        self.optimizer.zero_grad()
+        loss.backward()
+        self.optimizer.step()
+        self.update_sma()
+        return {'loss': loss.item()}
+
+    def predict(self, x):
+        self.network_sma.eval()
+        return self.network_sma(x)
+
+class ERM_SMA_CLIPDistill(Algorithm, MovingAvg):
+    """
+    Empirical Risk Minimization (ERM) with Simple Moving Average (SMA) prediction model
+    """
+    def __init__(self, input_shape, num_classes, num_domains, hparams):
+        Algorithm.__init__(self, input_shape, num_classes, num_domains, hparams)
+        self.featurizer = networks.Featurizer(input_shape, self.hparams)
+        self.classifier = networks.Classifier(
+                    self.featurizer.n_outputs,
+                    num_classes,
+                    self.hparams['nonlinear_classifier'])
+        self.network = nn.Sequential(self.featurizer, self.classifier)
+        self.optimizer = torch.optim.Adam(
+                        self.network.parameters(),
+                        lr=self.hparams["lr"],
+                        weight_decay=self.hparams['weight_decay']
+                        )
+        MovingAvg.__init__(self, self.network)
+        self.distill_on_easy = hparams["distill_on_easy"]
+        self.model = networks.CLIP(self.hparams)
+
+        for param in self.model.parameters():
+            param.requires_grad = False
+
+        self.prompt = torch.cat([clip.tokenize(f'a photo of a {cls_name}') for cls_name in hparams['class_names']]).to(self.device)
+
+        self.T = self.hparams['T']
+        self.alpha = self.hparams['alpha']
+        self.worst_p = hparams['worst_case_p']
+        self.easy_p = hparams['easy_case_p']
+
+    def update(self, minibatches, step=None, unlabeled=None):
+        all_x = torch.cat([x for x,y in minibatches])
+        all_y = torch.cat([y for x,y in minibatches])
+        # sample dim
+        if step <= int(5000 * (1 - self.k)):
+            with torch.no_grad():
+                all_p = self.network(all_x)
+                loss_pre = F.cross_entropy(all_p, all_y, reduction='none')
+            _, loss_sort_index = torch.sort(-loss_pre)
+            if self.distill_on_easy:
+                distill_index = loss_sort_index[-int(loss_pre.shape[0] * self.easy_p):].long()
+            else:
+                distill_index = loss_sort_index[:int(loss_pre.shape[0] * self.worst_p)].long()
+        
+        loss = F.cross_entropy(self.network(all_x), all_y)
+        
+        logits_per_image, _ = self.model(all_x[distill_index], self.prompt)
+
+        teacher_prob = F.softmax(logits_per_image / self.T, dim = 1)
+        student_log_prob = F.log_softmax(all_p / self.T, dim = 1)
+        kd_loss = F.kl_div(student_log_prob, teacher_prob, reduction = 'batchmean') * (self.T ** 2) 
+        loss = loss + self.alpha * kd_loss
+        
+        self.optimizer.zero_grad()
+        loss.backward()
+        self.optimizer.step()
+        self.update_sma()
+        return {'loss': loss.item()}
+
+    def predict(self, x):
+        self.network_sma.eval()
+        return self.network_sma(x)

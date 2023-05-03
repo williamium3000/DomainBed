@@ -149,7 +149,14 @@ def _hparams(algorithm, dataset, random_seed):
         else:
             _hparam('rsc_b_drop_factor', 1 / 3, lambda r: r.choice([0.2, 0.25, 0.3]))
             _hparam('worst_case_p', 1 / 3, lambda r: r.choice([0.2, 0.25, 0.3]))
-    
+    elif algorithm == "ERM_SMA_HardExampleMining":
+        _hparam('worst_case_p', 1 / 3, lambda r: r.choice([0.2, 0.25, 0.3]))
+    elif algorithm == "ERM_SMA_CLIPDistill":
+        _hparam('worst_case_p', 1 / 3, lambda r: r.choice([0.2, 0.25, 0.3]))
+        _hparam('easy_case_p', 1 / 3, lambda r: r.choice([0.2, 0.25, 0.3]))
+        _hparam('T', 3, lambda r: r.uniform(2., 5.))
+        _hparam('alpha', 1.0, lambda r: r.uniform(0.5, 1.5))
+        
     if algorithm == "W2D_v2_CLIP_Logits" or algorithm == "ERM_CLIP_Logits" or algorithm == "W2D_v2_CLIP_Logits_EMA" or algorithm == "ERM_CLIP_Logits_EMA":
         _hparam('T', 3, lambda r: r.uniform(2., 5.))
         _hparam('alpha', 1.0, lambda r: r.uniform(0.5, 1.5))

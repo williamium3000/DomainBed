@@ -1,0 +1,7 @@
+{
+    "clip_model": "ViT-B/32",
+    "model": "resnet",
+    "model_name": "resnet50",
+    "resnet_dropout": 0,
+    "distill_on_easy": true
+}
