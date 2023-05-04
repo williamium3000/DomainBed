@@ -207,10 +207,12 @@ class LanguageDrivenDGV2(ERM):
         self.network = nn.Sequential(self.featurizer, self.atten_pool)
         
         self.class_names = hparams['class_names']
-        self.domains = hparams['domain_names']
+        self.domain_names = hparams['domain_names']
         
         t = hparams.get("t", 1.0)
-        self.t = nn.Parameter(torch.ones([]) / t, requires_grad=True)
+        self.t1 = nn.Parameter(torch.ones([]) / t, requires_grad=True)
+        self.t2 = nn.Parameter(torch.ones([]) / t, requires_grad=True)
+        self.t3 = nn.Parameter(torch.ones([]) / t, requires_grad=True)
 
         self.optimizer = torch.optim.Adam(
             list(self.network.parameters()) + [self.t.data, ],
@@ -222,21 +224,35 @@ class LanguageDrivenDGV2(ERM):
         all_x = torch.cat([x for x, y, domain_idx in minibatches])
         all_y = torch.cat([y for x, y, domain_idx in minibatches])
         all_domain_idx = torch.cat([domain_idx for x, y, domain_idx in minibatches])
+        domain_names = (self.domain_names[i] for i in torch.unique(all_domain_idx))
         
+        class_prompt = torch.cat([clip.tokenize(f'a photo of a {cls_name}') for cls_name in self.class_names]).to(self.device)
+        domain_prompt = torch.cat([clip.tokenize(f'a photo of a {domain_name}') for domain_name in domain_names]).to(self.device)
+        domain_class_prompt = torch.cat([[clip.tokenize(f'a {domain_name} photo of a {class_name}') for domain_name in domain_names] for class_name in self.class_names]).to(self.device)
         
-        prompt = torch.cat([clip.tokenize(f'a photo of a {cls_name}') for cls_name in self.class_names]).to(self.device)
+        cls_domain_label = all_y * len(torch.unique(all_domain_idx)) + all_domain_idx
+        
         features = self.atten_pool(self.featurizer(all_x, return_feature=True)) # b, d, h, w
         # features = features.flatten(2).permute(0, 2, 1) # bs N, d
         image_features = features / features.norm(dim=-1, keepdim=True) # bs N, d
         
         with torch.no_grad():
-            text_features = self.clip_model.forward_text(prompt)
-            text_features /= text_features.norm(dim=-1, keepdim=True).detach()
+            class_text_features = self.clip_model.forward_text(class_prompt)
+            class_text_features /= class_text_features.norm(dim=-1, keepdim=True).detach()
+            
+            domain_text_features = self.clip_model.forward_text(class_prompt)
+            domain_text_features /= domain_text_features.norm(dim=-1, keepdim=True).detach()
+            
+            domain_class_text_features = self.clip_model.forward_text(domain_class_prompt)
+            domain_class_text_features /= domain_class_text_features.norm(dim=-1, keepdim=True).detach()
         
-        similarity  = self.t * image_features @ text_features.T
         
-        loss = F.cross_entropy(similarity, all_y)
-
+        loss_cls = F.cross_entropy(self.t1 * image_features @ class_text_features.T, all_y)
+        loss_domain = F.cross_entropy(self.t2 * image_features @ domain_text_features.T, all_domain_idx)
+        loss_cls_domain = F.cross_entropy(self.t3 * image_features @ domain_class_text_features.T, cls_domain_label)
+        
+        loss = (loss_cls + 0.5 * loss_domain + 0.5 * loss_cls_domain) / 2
+        
         self.optimizer.zero_grad()
         loss.backward()
         self.optimizer.step()
