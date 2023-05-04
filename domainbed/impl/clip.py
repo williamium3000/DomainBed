@@ -228,7 +228,11 @@ class LanguageDrivenDGV2(ERM):
         
         class_prompt = torch.cat([clip.tokenize(f'a photo of a {cls_name}') for cls_name in self.class_names]).to(self.device)
         domain_prompt = torch.cat([clip.tokenize(f'a photo of a {domain_name}') for domain_name in domain_names]).to(self.device)
-        domain_class_prompt = torch.cat([[clip.tokenize(f'a {domain_name} photo of a {class_name}') for domain_name in domain_names] for class_name in self.class_names]).to(self.device)
+        domain_class_prompt = []
+        for class_name in self.class_names:
+            for domain_name in domain_names:
+                domain_class_prompt.append(clip.tokenize(f'a {domain_name} photo of a {class_name}'))
+        domain_class_prompt = torch.cat(domain_class_prompt).to(self.device)
         
         cls_domain_label = all_y * len(torch.unique(all_domain_idx)) + all_domain_idx
         
@@ -240,7 +244,7 @@ class LanguageDrivenDGV2(ERM):
             class_text_features = self.clip_model.forward_text(class_prompt)
             class_text_features /= class_text_features.norm(dim=-1, keepdim=True).detach()
             
-            domain_text_features = self.clip_model.forward_text(class_prompt)
+            domain_text_features = self.clip_model.forward_text(domain_prompt)
             domain_text_features /= domain_text_features.norm(dim=-1, keepdim=True).detach()
             
             domain_class_text_features = self.clip_model.forward_text(domain_class_prompt)
