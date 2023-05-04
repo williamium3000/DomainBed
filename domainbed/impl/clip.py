@@ -215,7 +215,7 @@ class LanguageDrivenDGV2(ERM):
         self.t3 = nn.Parameter(torch.ones([]) / t, requires_grad=True)
 
         self.optimizer = torch.optim.Adam(
-            list(self.network.parameters()) + [self.t.data, ],
+            list(self.network.parameters()) + [self.t1.data, self.t2.data, self.t3.data],
             lr=self.hparams["lr"],
             weight_decay=self.hparams['weight_decay']
         )
@@ -224,7 +224,7 @@ class LanguageDrivenDGV2(ERM):
         all_x = torch.cat([x for x, y, domain_idx in minibatches])
         all_y = torch.cat([y for x, y, domain_idx in minibatches])
         all_domain_idx = torch.cat([domain_idx for x, y, domain_idx in minibatches])
-        domain_names = (self.domain_names[i] for i in torch.unique(all_domain_idx))
+        domain_names = [self.domain_names[i] for i in torch.unique(all_domain_idx)]
         
         class_prompt = torch.cat([clip.tokenize(f'a photo of a {cls_name}') for cls_name in self.class_names]).to(self.device)
         domain_prompt = torch.cat([clip.tokenize(f'a photo of a {domain_name}') for domain_name in domain_names]).to(self.device)
