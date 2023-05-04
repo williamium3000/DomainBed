@@ -75,6 +75,9 @@ class ResNet(torch.nn.Module):
         checkpoint_path = hparams.get("checkpoint_path", None)
         if checkpoint_path is None:
             pretrained = True
+        else:
+            pretrained = False
+            
         if hparams['model_name'] == "resnet18":
             self.network = torchvision.models.resnet18(pretrained=pretrained)
             self.n_outputs = 512
@@ -105,10 +108,27 @@ class ResNet(torch.nn.Module):
         self.freeze_bn()
         self.hparams = hparams
         self.dropout = nn.Dropout(hparams['resnet_dropout'])
-
-    def forward(self, x):
+    
+    
+    def forward(self, x, return_feature=False):
         """Encode x into a feature vector of size n_outputs."""
-        return self.dropout(self.network(x))
+        x = self.network.conv1(x)
+        x = self.network.bn1(x)
+        x = self.network.relu(x)
+        x = self.network.maxpool(x)
+
+        x = self.network.layer1(x)
+        x = self.network.layer2(x)
+        x = self.network.layer3(x)
+        feat = self.network.layer4(x)
+
+        out = self.network.avgpool(feat)
+        out = torch.flatten(out, 1)
+        
+        if return_feature:
+            return feat
+        else:
+            return self.dropout(out)
 
     def train(self, mode=True):
         """

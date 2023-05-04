@@ -24,6 +24,7 @@ DATASETS = [
     # Big images
     "VLCS",
     "PACS",
+    "PACSWithDomain",
     "OfficeHome",
     "TerraIncognita",
     "DomainNet",
@@ -75,15 +76,13 @@ class ImageFolderWithDomain(ImageFolder):
 
     def __init__(
         self,
-        domain_name,
         domain_idx,
-        *args, **kwargs
+        **kwargs
     ):
         super().__init__(
-            *args, **kwargs
+            **kwargs
         )
-        self.domain_name = self.domain_name
-        self.domain_idx = self.domain_idx
+        self.domain_idx = domain_idx
     def __getitem__(self, index: int):
         """
         Args:
@@ -99,7 +98,8 @@ class ImageFolderWithDomain(ImageFolder):
         if self.target_transform is not None:
             target = self.target_transform(target)
 
-        return sample, target, self.domain_name, self.domain_idx
+        return sample, target, torch.tensor(self.domain_idx)
+
 
 class MultipleDomainDataset:
     N_STEPS = 5001           # Default, subclasses may override
@@ -275,10 +275,55 @@ class MultipleEnvironmentImageFolder(MultipleDomainDataset):
         self.input_shape = (3, 224, 224,)
         self.num_classes = len(self.datasets[-1].classes)
         
-        hparams['domain_names'] = [domain_name.lower().replace("_", " ") for domain_name in sorted(environments)]
+        hparams['domain_names'] = [domain_name.lower().replace("_", " ") for domain_name in environments]
         class_names = [f.name for f in os.scandir(os.path.join(root, environments[0])) if f.is_dir()]
         hparams['class_names'] = [cls_name.lower().replace("_", " ") for cls_name in sorted(class_names)]
 
+class MultipleEnvironmentImageFolderWithDomain(MultipleDomainDataset):
+    def __init__(self, root, test_envs, augment, hparams):
+        super().__init__()
+        environments = [f.name for f in os.scandir(root) if f.is_dir()]
+        environments = sorted(environments)
+
+        transform = transforms.Compose([
+            transforms.Resize((224,224)),
+            transforms.ToTensor(),
+            transforms.Normalize(
+                mean=[0.485, 0.456, 0.406], std=[0.229, 0.224, 0.225])
+        ])
+
+        augment_transform = transforms.Compose([
+            # transforms.Resize((224,224)),
+            transforms.RandomResizedCrop(224, scale=(0.7, 1.0)),
+            transforms.RandomHorizontalFlip(),
+            transforms.ColorJitter(0.3, 0.3, 0.3, 0.3),
+            transforms.RandomGrayscale(),
+            transforms.ToTensor(),
+            transforms.Normalize(
+                mean=[0.485, 0.456, 0.406], std=[0.229, 0.224, 0.225]),
+        ])
+
+        self.datasets = []
+        for i, environment in enumerate(environments):
+
+            if augment and (i not in test_envs):
+                env_transform = augment_transform
+            else:
+                env_transform = transform
+
+            path = os.path.join(root, environment)
+            env_dataset = ImageFolderWithDomain(root=path,
+                transform=env_transform, domain_idx=i)
+
+            self.datasets.append(env_dataset)
+
+        self.input_shape = (3, 224, 224,)
+        self.num_classes = len(self.datasets[-1].classes)
+        
+        hparams['domain_names'] = [domain_name.lower().replace("_", " ") for domain_name in environments]
+        class_names = [f.name for f in os.scandir(os.path.join(root, environments[0])) if f.is_dir()]
+        hparams['class_names'] = [cls_name.lower().replace("_", " ") for cls_name in sorted(class_names)]
+        
 class VLCS(MultipleEnvironmentImageFolder):
     CHECKPOINT_FREQ = 300
     ENVIRONMENTS = ["C", "L", "S", "V"]
@@ -293,6 +338,13 @@ class PACS(MultipleEnvironmentImageFolder):
         self.dir = os.path.join(root, "PACS/")
         super().__init__(self.dir, test_envs, hparams['data_augmentation'], hparams)
 
+class PACSWithDomain(MultipleEnvironmentImageFolderWithDomain):
+    CHECKPOINT_FREQ = 300
+    ENVIRONMENTS = ["A", "C", "P", "S"]
+    def __init__(self, root, test_envs, hparams):
+        self.dir = os.path.join(root, "PACS/")
+        super().__init__(self.dir, test_envs, hparams['data_augmentation'], hparams)
+        
 class DomainNet(MultipleEnvironmentImageFolder):
     CHECKPOINT_FREQ = 1000
     ENVIRONMENTS = ["clip", "info", "paint", "quick", "real", "sketch"]
