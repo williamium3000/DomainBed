@@ -14,6 +14,7 @@ class MovingAvg:
         self.sma_start_iter = 100
         self.global_iter = 0
         self.sma_count = 0
+    
     def update_sma(self):
         self.global_iter += 1
         new_dict = {}

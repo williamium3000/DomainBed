@@ -72,6 +72,7 @@ class ResNet(torch.nn.Module):
     """ResNet with the softmax chopped off and the batchnorm frozen"""
     def __init__(self, input_shape, hparams):
         super(ResNet, self).__init__()
+        self.return_feature = hparams.get("return_feature", False)
         checkpoint_path = hparams.get("checkpoint_path", None)
         if checkpoint_path is None:
             pretrained = True
@@ -110,7 +111,7 @@ class ResNet(torch.nn.Module):
         self.dropout = nn.Dropout(hparams['resnet_dropout'])
     
     
-    def forward(self, x, return_feature=False):
+    def forward(self, x):
         """Encode x into a feature vector of size n_outputs."""
         x = self.network.conv1(x)
         x = self.network.bn1(x)
@@ -125,7 +126,7 @@ class ResNet(torch.nn.Module):
         out = self.network.avgpool(feat)
         out = torch.flatten(out, 1)
         
-        if return_feature:
+        if self.return_feature:
             return feat
         else:
             return self.dropout(out)

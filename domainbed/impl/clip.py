@@ -7,6 +7,7 @@ import clip
 from clip.model import AttentionPool2d
 from .base import Algorithm
 from .original import ERM
+from .sma import MovingAvg
 
 # zero-shot CLIP
 class CLIP(Algorithm):
@@ -122,6 +123,7 @@ class LanguageDrivenDG(ERM):
         super(LanguageDrivenDG, self).__init__(input_shape, num_classes, num_domains, hparams)
         self.device = 'cuda' if torch.cuda.is_available() else 'cpu'
         
+        self.hparams["return_feature"] = True
         self.featurizer = networks.Featurizer(input_shape, self.hparams)
         out_feature = self.featurizer.n_outputs
         
@@ -155,7 +157,7 @@ class LanguageDrivenDG(ERM):
         all_x = torch.cat([x for x, y in minibatches])
         all_y = torch.cat([y for x, y in minibatches])
 
-        features = self.atten_pool(self.featurizer(all_x, return_feature=True)) # b, d, h, w
+        features = self.network(all_x) # b, d, h, w
         # features = features.flatten(2).permute(0, 2, 1) # bs N, d
         image_features = features / features.norm(dim=-1, keepdim=True) # bs N, d
         
@@ -174,7 +176,7 @@ class LanguageDrivenDG(ERM):
         return {'loss': loss.item()}
 
     def predict(self, x):
-        features = self.atten_pool(self.featurizer(x, return_feature=True)) # b, d, h, w
+        features = self.network(x) # b, d, h, w
         # features = features.flatten(2).permute(0, 2, 1) # bs N, d
         image_features = features / features.norm(dim=-1, keepdim=True) # bs N, d
         
@@ -189,8 +191,9 @@ class LanguageDrivenDGV2(ERM):
     def __init__(self, input_shape, num_classes, num_domains, hparams):
         super(LanguageDrivenDGV2, self).__init__(input_shape, num_classes, num_domains, hparams)
         self.device = 'cuda' if torch.cuda.is_available() else 'cpu'
-        
+        self.hparams["return_feature"] = True
         self.featurizer = networks.Featurizer(input_shape, self.hparams)
+        
         out_feature = self.featurizer.n_outputs
         
         self.clip_model = networks.CLIP(self.hparams)
@@ -241,7 +244,7 @@ class LanguageDrivenDGV2(ERM):
         
         cls_domain_label = all_y * len(existing_domains) + new_domain_idx
         
-        features = self.atten_pool(self.featurizer(all_x, return_feature=True)) # b, d, h, w
+        features = self.network(all_x) # b, d, h, w
         # features = features.flatten(2).permute(0, 2, 1) # bs N, d
         image_features = features / features.norm(dim=-1, keepdim=True) # bs N, d
         
@@ -271,7 +274,33 @@ class LanguageDrivenDGV2(ERM):
     def predict(self, x):
         prompt = torch.cat([clip.tokenize(f'a photo of a {cls_name}') for cls_name in self.class_names]).to(self.device)
         
-        features = self.atten_pool(self.featurizer(x, return_feature=True)) # b, d, h, w
+        features = self.network(x)# b, d, h, w
+        # features = features.flatten(2).permute(0, 2, 1) # bs N, d
+        image_features = features / features.norm(dim=-1, keepdim=True) # bs N, d
+        
+        text_features = self.clip_model.forward_text(prompt)
+        text_features /= text_features.norm(dim=-1, keepdim=True)
+        
+        similarity  = image_features @ text_features.T
+        return similarity
+
+
+class LanguageDrivenDGV2_EMA(LanguageDrivenDGV2, MovingAvg): 
+    def __init__(self, input_shape, num_classes, num_domains, hparams):
+        LanguageDrivenDGV2.__init__(self, input_shape, num_classes, num_domains, hparams)
+        MovingAvg.__init__(self, self.network)
+        
+    def update(self, minibatches, unlabeled=None):
+        return_dict = LanguageDrivenDGV2.update(self, minibatches, unlabeled)
+        self.update_sma()
+        return return_dict
+
+    def predict(self, x):
+        self.network_sma.eval()
+        
+        prompt = torch.cat([clip.tokenize(f'a photo of a {cls_name}') for cls_name in self.class_names]).to(self.device)
+        
+        features = self.network_sma(x) # b, d, h, w
         # features = features.flatten(2).permute(0, 2, 1) # bs N, d
         image_features = features / features.norm(dim=-1, keepdim=True) # bs N, d
         
