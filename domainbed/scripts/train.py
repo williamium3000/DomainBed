@@ -214,6 +214,9 @@ if __name__ == "__main__":
                 for x,_ in next(uda_minibatches_iterator)]
         else:
             uda_device = None
+            
+        algorithm.train()
+        
         if hparams.get("pass_step", False):
             step_vals = algorithm.update(minibatches_device, uda_device, step=step)
         else:
