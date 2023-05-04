@@ -1,0 +1,1011 @@
+Environment:
+	Python: 3.8.16
+	PyTorch: 1.9.1+cu111
+	Torchvision: 0.10.1+cu111
+	CUDA: 11.1
+	CUDNN: 8005
+	NumPy: 1.24.2
+	PIL: 9.5.0
+Args:
+	algorithm: LanguageDrivenDGV2
+	checkpoint_freq: None
+	data_dir: ./domainbed/data/
+	dataset: PACSWithDomain
+	holdout_fraction: 0.2
+	hparams: None
+	hparams_seed: 0
+	output_dir: train_output
+	save_model_every_checkpoint: False
+	seed: 0
+	skip_model_save: False
+	steps: None
+	task: domain_generalization
+	test_envs: [0]
+	trial_seed: 0
+	uda_holdout_fraction: 0
+HParams:
+	batch_size: 32
+	class_balanced: False
+	data_augmentation: True
+	lr: 5e-05
+	model: resnet
+	model_name: resnet50
+	nonlinear_classifier: False
+	resnet_dropout: 0.0
+	weight_decay: 0.0
+Traceback (most recent call last):
+  File "/home/william/anaconda3/envs/pytorch1.9/lib/python3.8/runpy.py", line 194, in _run_module_as_main
+    return _run_code(code, main_globals, None,
+  File "/home/william/anaconda3/envs/pytorch1.9/lib/python3.8/runpy.py", line 87, in _run_code
+    exec(code, run_globals)
+  File "/mnt/d/cs/project/DomainBed/domainbed/scripts/train.py", line 99, in <module>
+    dataset = vars(datasets)[args.dataset](args.data_dir,
+  File "/mnt/d/cs/project/DomainBed/domainbed/datasets.py", line 346, in __init__
+    super().__init__(self.dir, test_envs, hparams['data_augmentation'], hparams)
+  File "/mnt/d/cs/project/DomainBed/domainbed/datasets.py", line 315, in __init__
+    env_dataset = ImageFolderWithDomain(path,
+TypeError: __init__() got multiple values for argument 'domain_idx'
+Environment:
+	Python: 3.8.16
+	PyTorch: 1.9.1+cu111
+	Torchvision: 0.10.1+cu111
+	CUDA: 11.1
+	CUDNN: 8005
+	NumPy: 1.24.2
+	PIL: 9.5.0
+Args:
+	algorithm: LanguageDrivenDGV2
+	checkpoint_freq: None
+	data_dir: ./domainbed/data/
+	dataset: PACSWithDomain
+	holdout_fraction: 0.2
+	hparams: None
+	hparams_seed: 0
+	output_dir: train_output
+	save_model_every_checkpoint: False
+	seed: 0
+	skip_model_save: False
+	steps: None
+	task: domain_generalization
+	test_envs: [0]
+	trial_seed: 0
+	uda_holdout_fraction: 0
+HParams:
+	batch_size: 32
+	class_balanced: False
+	data_augmentation: True
+	lr: 5e-05
+	model: resnet
+	model_name: resnet50
+	nonlinear_classifier: False
+	resnet_dropout: 0.0
+	weight_decay: 0.0
+Traceback (most recent call last):
+  File "/home/william/anaconda3/envs/pytorch1.9/lib/python3.8/runpy.py", line 194, in _run_module_as_main
+    return _run_code(code, main_globals, None,
+  File "/home/william/anaconda3/envs/pytorch1.9/lib/python3.8/runpy.py", line 87, in _run_code
+    exec(code, run_globals)
+  File "/mnt/d/cs/project/DomainBed/domainbed/scripts/train.py", line 99, in <module>
+    dataset = vars(datasets)[args.dataset](args.data_dir,
+  File "/mnt/d/cs/project/DomainBed/domainbed/datasets.py", line 346, in __init__
+    super().__init__(self.dir, test_envs, hparams['data_augmentation'], hparams)
+  File "/mnt/d/cs/project/DomainBed/domainbed/datasets.py", line 315, in __init__
+    env_dataset = ImageFolderWithDomain(root=path,
+  File "/mnt/d/cs/project/DomainBed/domainbed/datasets.py", line 85, in __init__
+    self.domain_idx = self.domain_idx
+AttributeError: 'ImageFolderWithDomain' object has no attribute 'domain_idx'
+Environment:
+	Python: 3.8.16
+	PyTorch: 1.9.1+cu111
+	Torchvision: 0.10.1+cu111
+	CUDA: 11.1
+	CUDNN: 8005
+	NumPy: 1.24.2
+	PIL: 9.5.0
+Args:
+	algorithm: LanguageDrivenDGV2
+	checkpoint_freq: None
+	data_dir: ./domainbed/data/
+	dataset: PACSWithDomain
+	holdout_fraction: 0.2
+	hparams: None
+	hparams_seed: 0
+	output_dir: train_output
+	save_model_every_checkpoint: False
+	seed: 0
+	skip_model_save: False
+	steps: None
+	task: domain_generalization
+	test_envs: [0]
+	trial_seed: 0
+	uda_holdout_fraction: 0
+HParams:
+	batch_size: 32
+	class_balanced: False
+	data_augmentation: True
+	lr: 5e-05
+	model: resnet
+	model_name: resnet50
+	nonlinear_classifier: False
+	resnet_dropout: 0.0
+	weight_decay: 0.0
+Traceback (most recent call last):
+  File "/home/william/anaconda3/envs/pytorch1.9/lib/python3.8/runpy.py", line 194, in _run_module_as_main
+    return _run_code(code, main_globals, None,
+  File "/home/william/anaconda3/envs/pytorch1.9/lib/python3.8/runpy.py", line 87, in _run_code
+    exec(code, run_globals)
+  File "/mnt/d/cs/project/DomainBed/domainbed/scripts/train.py", line 175, in <module>
+    algorithm = algorithm_class(dataset.input_shape, dataset.num_classes,
+  File "/mnt/d/cs/project/DomainBed/domainbed/impl/clip.py", line 190, in __init__
+    super(LanguageDrivenDG, self).__init__(input_shape, num_classes, num_domains, hparams)
+TypeError: super(type, obj): obj must be an instance or subtype of type
+Environment:
+	Python: 3.8.16
+	PyTorch: 1.9.1+cu111
+	Torchvision: 0.10.1+cu111
+	CUDA: 11.1
+	CUDNN: 8005
+	NumPy: 1.24.2
+	PIL: 9.5.0
+Args:
+	algorithm: LanguageDrivenDGV2
+	checkpoint_freq: None
+	data_dir: ./domainbed/data/
+	dataset: PACSWithDomain
+	holdout_fraction: 0.2
+	hparams: None
+	hparams_seed: 0
+	output_dir: train_output
+	save_model_every_checkpoint: False
+	seed: 0
+	skip_model_save: False
+	steps: None
+	task: domain_generalization
+	test_envs: [0]
+	trial_seed: 0
+	uda_holdout_fraction: 0
+HParams:
+	batch_size: 32
+	class_balanced: False
+	data_augmentation: True
+	lr: 5e-05
+	model: resnet
+	model_name: resnet50
+	nonlinear_classifier: False
+	resnet_dropout: 0.0
+	weight_decay: 0.0
+Downloading: "https://download.pytorch.org/models/resnet50-0676ba61.pth" to /home/william/.cache/torch/hub/checkpoints/resnet50-0676ba61.pth
+  0%|          | 0.00/97.8M [00:00<?, ?B/s]  1%|          | 552k/97.8M [00:00<00:18, 5.45MB/s]  1%|1         | 1.23M/97.8M [00:00<00:16, 6.21MB/s]  2%|1         | 1.83M/97.8M [00:00<00:17, 5.71MB/s]  3%|2         | 2.50M/97.8M [00:00<00:16, 6.15MB/s]  3%|3         | 3.09M/97.8M [00:00<00:16, 5.97MB/s]  4%|3         | 3.76M/97.8M [00:00<00:15, 6.28MB/s]  5%|4         | 4.62M/97.8M [00:00<00:13, 7.01MB/s]  5%|5         | 5.30M/97.8M [00:00<00:13, 7.04MB/s]  6%|6         | 5.98M/97.8M [00:00<00:13, 6.92MB/s]  7%|6         | 6.84M/97.8M [00:01<00:12, 7.48MB/s]  8%|7         | 7.56M/97.8M [00:01<00:12, 7.34MB/s]  9%|8         | 8.58M/97.8M [00:01<00:11, 8.30MB/s] 10%|9         | 9.38M/97.8M [00:01<00:11, 8.11MB/s] 10%|#         | 10.2M/97.8M [00:01<00:11, 8.26MB/s] 11%|#1        | 11.0M/97.8M [00:01<00:11, 8.14MB/s] 12%|#2        | 11.8M/97.8M [00:01<00:11, 7.78MB/s] 13%|#2        | 12.6M/97.8M [00:01<00:11, 7.95MB/s] 14%|#3        | 13.4M/97.8M [00:01<00:11, 7.87MB/s] 15%|#4        | 14.5M/97.8M [00:02<00:10, 8.45MB/s] 16%|#5        | 15.3M/97.8M [00:02<00:10, 8.54MB/s] 17%|#6        | 16.2M/97.8M [00:02<00:10, 8.53MB/s] 17%|#7        | 17.1M/97.8M [00:02<00:09, 8.70MB/s] 18%|#8        | 17.9M/97.8M [00:02<00:09, 8.66MB/s] 19%|#9        | 19.0M/97.8M [00:02<00:08, 9.49MB/s] 21%|##        | 20.1M/97.8M [00:02<00:08, 9.86MB/s] 21%|##1       | 21.0M/97.8M [00:02<00:08, 9.79MB/s] 22%|##2       | 21.9M/97.8M [00:02<00:08, 9.47MB/s] 23%|##3       | 23.0M/97.8M [00:02<00:08, 9.76MB/s] 24%|##4       | 23.9M/97.8M [00:03<00:08, 8.83MB/s] 25%|##5       | 24.8M/97.8M [00:03<00:10, 7.64MB/s] 26%|##6       | 25.5M/97.8M [00:03<00:09, 7.74MB/s] 27%|##7       | 26.4M/97.8M [00:03<00:09, 8.02MB/s] 28%|##7       | 27.2M/97.8M [00:03<00:09, 8.06MB/s] 29%|##8       | 28.1M/97.8M [00:03<00:08, 8.26MB/s] 30%|##9       | 28.9M/97.8M [00:03<00:09, 7.96MB/s] 31%|###       | 29.8M/97.8M [00:03<00:08, 8.47MB/s] 31%|###1      | 30.7M/97.8M [00:03<00:08, 8.68MB/s] 33%|###2      | 31.9M/97.8M [00:04<00:07, 9.31MB/s] 34%|###3      | 32.8M/97.8M [00:04<00:07, 9.22MB/s] 34%|###4      | 33.6M/97.8M [00:04<00:07, 9.19MB/s] 35%|###5      | 34.7M/97.8M [00:04<00:06, 9.62MB/s] 36%|###6      | 35.6M/97.8M [00:04<00:07, 8.93MB/s] 37%|###7      | 36.5M/97.8M [00:04<00:07, 8.96MB/s] 38%|###8      | 37.4M/97.8M [00:04<00:08, 7.65MB/s] 39%|###8      | 38.1M/97.8M [00:04<00:08, 7.21MB/s] 40%|###9      | 38.9M/97.8M [00:05<00:08, 6.88MB/s] 40%|####      | 39.5M/97.8M [00:05<00:08, 6.85MB/s] 41%|####1     | 40.2M/97.8M [00:05<00:08, 7.02MB/s] 42%|####1     | 40.9M/97.8M [00:05<00:08, 6.91MB/s] 43%|####2     | 41.6M/97.8M [00:05<00:08, 6.63MB/s] 43%|####3     | 42.2M/97.8M [00:05<00:09, 5.91MB/s] 44%|####3     | 43.0M/97.8M [00:05<00:08, 6.46MB/s] 45%|####4     | 43.7M/97.8M [00:05<00:09, 6.26MB/s] 45%|####5     | 44.3M/97.8M [00:05<00:09, 6.10MB/s] 46%|####5     | 44.9M/97.8M [00:06<00:09, 5.97MB/s] 46%|####6     | 45.5M/97.8M [00:06<00:09, 5.90MB/s] 47%|####7     | 46.0M/97.8M [00:06<00:09, 5.83MB/s] 48%|####7     | 46.6M/97.8M [00:06<00:09, 5.76MB/s] 48%|####8     | 47.1M/97.8M [00:06<00:09, 5.73MB/s] 49%|####8     | 47.8M/97.8M [00:06<00:08, 5.92MB/s] 49%|####9     | 48.3M/97.8M [00:06<00:09, 5.72MB/s] 50%|#####     | 48.9M/97.8M [00:06<00:08, 5.72MB/s] 51%|#####     | 49.5M/97.8M [00:06<00:09, 5.63MB/s] 51%|#####1    | 50.0M/97.8M [00:07<00:09, 5.55MB/s] 52%|#####1    | 50.6M/97.8M [00:07<00:08, 5.79MB/s] 53%|#####2    | 51.4M/97.8M [00:07<00:07, 6.34MB/s] 53%|#####3    | 52.1M/97.8M [00:07<00:07, 6.62MB/s] 54%|#####3    | 52.7M/97.8M [00:07<00:07, 6.52MB/s] 55%|#####4    | 53.4M/97.8M [00:07<00:07, 6.62MB/s] 55%|#####5    | 54.0M/97.8M [00:07<00:07, 6.32MB/s] 56%|#####6    | 54.8M/97.8M [00:07<00:06, 6.58MB/s] 57%|#####6    | 55.4M/97.8M [00:07<00:06, 6.47MB/s] 57%|#####7    | 56.2M/97.8M [00:07<00:06, 6.90MB/s] 58%|#####8    | 56.8M/97.8M [00:08<00:06, 6.42MB/s] 59%|#####8    | 57.5M/97.8M [00:08<00:06, 6.33MB/s] 59%|#####9    | 58.1M/97.8M [00:08<00:07, 5.35MB/s] 60%|######    | 58.7M/97.8M [00:08<00:07, 5.66MB/s] 61%|######    | 59.3M/97.8M [00:08<00:07, 5.49MB/s] 61%|######1   | 59.8M/97.8M [00:08<00:07, 5.27MB/s] 62%|######1   | 60.3M/97.8M [00:08<00:07, 5.24MB/s] 62%|######2   | 61.0M/97.8M [00:08<00:06, 5.67MB/s] 63%|######2   | 61.6M/97.8M [00:09<00:07, 5.17MB/s] 64%|######3   | 62.3M/97.8M [00:09<00:06, 5.78MB/s] 64%|######4   | 62.9M/97.8M [00:09<00:06, 5.43MB/s] 65%|######5   | 63.7M/97.8M [00:09<00:05, 6.29MB/s] 66%|######5   | 64.3M/97.8M [00:09<00:05, 5.86MB/s] 66%|######6   | 65.0M/97.8M [00:09<00:05, 6.20MB/s] 67%|######7   | 65.6M/97.8M [00:09<00:05, 5.81MB/s] 68%|######7   | 66.2M/97.8M [00:09<00:05, 5.94MB/s] 68%|######8   | 66.8M/97.8M [00:09<00:05, 5.95MB/s] 69%|######8   | 67.4M/97.8M [00:10<00:05, 5.90MB/s] 70%|######9   | 68.0M/97.8M [00:10<00:05, 6.04MB/s] 70%|#######   | 68.6M/97.8M [00:10<00:05, 5.97MB/s] 71%|#######   | 69.2M/97.8M [00:10<00:07, 3.83MB/s] 71%|#######1  | 69.7M/97.8M [00:10<00:07, 4.19MB/s] 72%|#######1  | 70.2M/97.8M [00:10<00:06, 4.34MB/s] 72%|#######2  | 70.8M/97.8M [00:10<00:05, 4.74MB/s] 73%|#######2  | 71.4M/97.8M [00:10<00:05, 4.99MB/s] 74%|#######3  | 72.2M/97.8M [00:11<00:04, 5.92MB/s] 74%|#######4  | 72.8M/97.8M [00:11<00:04, 5.46MB/s] 75%|#######5  | 73.4M/97.8M [00:11<00:05, 4.87MB/s] 76%|#######5  | 73.9M/97.8M [00:11<00:04, 5.01MB/s] 76%|#######6  | 74.4M/97.8M [00:11<00:04, 4.93MB/s] 77%|#######6  | 75.0M/97.8M [00:11<00:04, 5.32MB/s] 77%|#######7  | 75.5M/97.8M [00:11<00:04, 5.33MB/s] 78%|#######7  | 76.1M/97.8M [00:11<00:04, 5.34MB/s] 78%|#######8  | 76.7M/97.8M [00:12<00:03, 5.75MB/s] 79%|#######9  | 77.3M/97.8M [00:12<00:04, 5.27MB/s] 80%|#######9  | 77.8M/97.8M [00:12<00:04, 5.07MB/s] 80%|########  | 78.3M/97.8M [00:12<00:04, 4.98MB/s] 81%|########  | 78.9M/97.8M [00:12<00:03, 5.19MB/s] 81%|########1 | 79.5M/97.8M [00:12<00:03, 5.61MB/s] 82%|########2 | 80.2M/97.8M [00:12<00:03, 5.94MB/s] 83%|########2 | 80.9M/97.8M [00:12<00:02, 6.39MB/s] 83%|########3 | 81.5M/97.8M [00:12<00:02, 5.83MB/s] 84%|########3 | 82.1M/97.8M [00:13<00:02, 5.66MB/s] 85%|########4 | 82.8M/97.8M [00:13<00:02, 6.03MB/s] 85%|########5 | 83.4M/97.8M [00:13<00:02, 5.70MB/s] 86%|########5 | 84.0M/97.8M [00:13<00:02, 5.91MB/s] 87%|########6 | 84.7M/97.8M [00:13<00:02, 6.33MB/s] 87%|########7 | 85.3M/97.8M [00:13<00:02, 6.17MB/s] 88%|########7 | 86.0M/97.8M [00:13<00:01, 6.20MB/s] 89%|########8 | 86.6M/97.8M [00:13<00:01, 6.20MB/s] 89%|########9 | 87.2M/97.8M [00:13<00:01, 6.11MB/s] 90%|########9 | 87.9M/97.8M [00:13<00:01, 6.17MB/s] 90%|######### | 88.5M/97.8M [00:14<00:01, 5.53MB/s] 91%|#########1| 89.2M/97.8M [00:14<00:01, 6.10MB/s] 92%|#########1| 89.8M/97.8M [00:14<00:01, 5.45MB/s] 92%|#########2| 90.3M/97.8M [00:14<00:01, 5.37MB/s] 93%|#########2| 90.9M/97.8M [00:14<00:01, 5.20MB/s] 93%|#########3| 91.4M/97.8M [00:14<00:01, 5.21MB/s] 94%|#########4| 92.0M/97.8M [00:14<00:01, 5.38MB/s] 95%|#########4| 92.5M/97.8M [00:14<00:01, 5.02MB/s] 95%|#########5| 93.2M/97.8M [00:15<00:00, 5.53MB/s] 96%|#########5| 93.7M/97.8M [00:15<00:00, 5.41MB/s] 96%|#########6| 94.2M/97.8M [00:15<00:00, 5.38MB/s] 97%|#########7| 94.9M/97.8M [00:15<00:00, 5.75MB/s] 98%|#########7| 95.4M/97.8M [00:15<00:00, 5.74MB/s] 98%|#########8| 96.2M/97.8M [00:15<00:00, 6.32MB/s] 99%|#########9| 97.0M/97.8M [00:15<00:00, 7.02MB/s]100%|#########9| 97.7M/97.8M [00:15<00:00, 6.33MB/s]100%|##########| 97.8M/97.8M [00:15<00:00, 6.48MB/s]
+Traceback (most recent call last):
+  File "/home/william/anaconda3/envs/pytorch1.9/lib/python3.8/runpy.py", line 194, in _run_module_as_main
+    return _run_code(code, main_globals, None,
+  File "/home/william/anaconda3/envs/pytorch1.9/lib/python3.8/runpy.py", line 87, in _run_code
+    exec(code, run_globals)
+  File "/mnt/d/cs/project/DomainBed/domainbed/scripts/train.py", line 175, in <module>
+    algorithm = algorithm_class(dataset.input_shape, dataset.num_classes,
+  File "/mnt/d/cs/project/DomainBed/domainbed/impl/clip.py", line 196, in __init__
+    self.clip_model = networks.CLIP(self.hparams)
+  File "/mnt/d/cs/project/DomainBed/domainbed/networks.py", line 299, in __init__
+    if hparams['clip_model'] not in clip.available_models():
+KeyError: 'clip_model'
+Environment:
+	Python: 3.8.16
+	PyTorch: 1.9.1+cu111
+	Torchvision: 0.10.1+cu111
+	CUDA: 11.1
+	CUDNN: 8005
+	NumPy: 1.24.2
+	PIL: 9.5.0
+Args:
+	algorithm: LanguageDrivenDGV2
+	checkpoint_freq: None
+	data_dir: ./domainbed/data
+	dataset: PACSWithDomain
+	holdout_fraction: 0.2
+	hparams: {
+    "clip_model": "RN50",
+    "resnet_dropout": 0,
+    "model": "resnet",
+    "model_name": "resnet50"
+}
+	hparams_seed: 0
+	output_dir: train_output
+	save_model_every_checkpoint: False
+	seed: 0
+	skip_model_save: False
+	steps: 5001
+	task: domain_generalization
+	test_envs: [0]
+	trial_seed: 0
+	uda_holdout_fraction: 0
+HParams:
+	batch_size: 32
+	class_balanced: False
+	clip_model: RN50
+	data_augmentation: True
+	lr: 5e-05
+	model: resnet
+	model_name: resnet50
+	nonlinear_classifier: False
+	resnet_dropout: 0
+	weight_decay: 0.0
+Using RN50...
+Traceback (most recent call last):
+  File "/home/william/anaconda3/envs/pytorch1.9/lib/python3.8/runpy.py", line 194, in _run_module_as_main
+    return _run_code(code, main_globals, None,
+  File "/home/william/anaconda3/envs/pytorch1.9/lib/python3.8/runpy.py", line 87, in _run_code
+    exec(code, run_globals)
+  File "/mnt/d/cs/project/DomainBed/domainbed/scripts/train.py", line 209, in <module>
+    minibatches_device = [(x.to(device), y.to(device))
+  File "/mnt/d/cs/project/DomainBed/domainbed/scripts/train.py", line 210, in <listcomp>
+    for x,y in next(train_minibatches_iterator)]
+ValueError: too many values to unpack (expected 2)
+Environment:
+	Python: 3.8.16
+	PyTorch: 1.9.1+cu111
+	Torchvision: 0.10.1+cu111
+	CUDA: 11.1
+	CUDNN: 8005
+	NumPy: 1.24.2
+	PIL: 9.5.0
+Args:
+	algorithm: LanguageDrivenDGV2
+	checkpoint_freq: None
+	data_dir: ./domainbed/data
+	dataset: PACSWithDomain
+	holdout_fraction: 0.2
+	hparams: {
+    "clip_model": "RN50",
+    "resnet_dropout": 0,
+    "model": "resnet",
+    "model_name": "resnet50"
+}
+	hparams_seed: 0
+	output_dir: train_output
+	save_model_every_checkpoint: False
+	seed: 0
+	skip_model_save: False
+	steps: 5001
+	task: domain_generalization
+	test_envs: [0]
+	trial_seed: 0
+	uda_holdout_fraction: 0
+HParams:
+	batch_size: 32
+	class_balanced: False
+	clip_model: RN50
+	data_augmentation: True
+	lr: 5e-05
+	model: resnet
+	model_name: resnet50
+	nonlinear_classifier: False
+	resnet_dropout: 0
+	weight_decay: 0.0
+Using RN50...
+Traceback (most recent call last):
+  File "/home/william/anaconda3/envs/pytorch1.9/lib/python3.8/runpy.py", line 194, in _run_module_as_main
+    return _run_code(code, main_globals, None,
+  File "/home/william/anaconda3/envs/pytorch1.9/lib/python3.8/runpy.py", line 87, in _run_code
+    exec(code, run_globals)
+  File "/mnt/d/cs/project/DomainBed/domainbed/scripts/train.py", line 219, in <module>
+    step_vals = algorithm.update(minibatches_device, uda_device)
+  File "/mnt/d/cs/project/DomainBed/domainbed/impl/clip.py", line 223, in update
+    all_y = torch.cat([y for x, y, domain_idx in minibatches])
+  File "/mnt/d/cs/project/DomainBed/domainbed/impl/clip.py", line 223, in <listcomp>
+    all_y = torch.cat([y for x, y, domain_idx in minibatches])
+ValueError: not enough values to unpack (expected 3, got 0)
+Environment:
+	Python: 3.8.16
+	PyTorch: 1.9.1+cu111
+	Torchvision: 0.10.1+cu111
+	CUDA: 11.1
+	CUDNN: 8005
+	NumPy: 1.24.2
+	PIL: 9.5.0
+Args:
+	algorithm: LanguageDrivenDGV2
+	checkpoint_freq: None
+	data_dir: ./domainbed/data
+	dataset: PACSWithDomain
+	holdout_fraction: 0.2
+	hparams: {
+    "clip_model": "RN50",
+    "resnet_dropout": 0,
+    "model": "resnet",
+    "model_name": "resnet50"
+}
+	hparams_seed: 0
+	output_dir: train_output
+	save_model_every_checkpoint: False
+	seed: 0
+	skip_model_save: False
+	steps: 5001
+	task: domain_generalization
+	test_envs: [0]
+	trial_seed: 0
+	uda_holdout_fraction: 0
+HParams:
+	batch_size: 32
+	class_balanced: False
+	clip_model: RN50
+	data_augmentation: True
+	lr: 5e-05
+	model: resnet
+	model_name: resnet50
+	nonlinear_classifier: False
+	resnet_dropout: 0
+	weight_decay: 0.0
+Using RN50...
+[<generator object <listcomp>.<genexpr> at 0x7f278cc8d580>, <generator object <listcomp>.<genexpr> at 0x7f278cc8d660>, <generator object <listcomp>.<genexpr> at 0x7f278cc8d740>]
+Traceback (most recent call last):
+  File "/home/william/anaconda3/envs/pytorch1.9/lib/python3.8/runpy.py", line 194, in _run_module_as_main
+    return _run_code(code, main_globals, None,
+  File "/home/william/anaconda3/envs/pytorch1.9/lib/python3.8/runpy.py", line 87, in _run_code
+    exec(code, run_globals)
+  File "/mnt/d/cs/project/DomainBed/domainbed/scripts/train.py", line 219, in <module>
+    step_vals = algorithm.update(minibatches_device, uda_device)
+  File "/mnt/d/cs/project/DomainBed/domainbed/impl/clip.py", line 224, in update
+    all_y = torch.cat([y for x, y, domain_idx in minibatches])
+  File "/mnt/d/cs/project/DomainBed/domainbed/impl/clip.py", line 224, in <listcomp>
+    all_y = torch.cat([y for x, y, domain_idx in minibatches])
+ValueError: not enough values to unpack (expected 3, got 0)
+Environment:
+	Python: 3.8.16
+	PyTorch: 1.9.1+cu111
+	Torchvision: 0.10.1+cu111
+	CUDA: 11.1
+	CUDNN: 8005
+	NumPy: 1.24.2
+	PIL: 9.5.0
+Args:
+	algorithm: LanguageDrivenDGV2
+	checkpoint_freq: None
+	data_dir: ./domainbed/data
+	dataset: PACSWithDomain
+	holdout_fraction: 0.2
+	hparams: {
+    "clip_model": "RN50",
+    "resnet_dropout": 0,
+    "model": "resnet",
+    "model_name": "resnet50"
+}
+	hparams_seed: 0
+	output_dir: train_output
+	save_model_every_checkpoint: False
+	seed: 0
+	skip_model_save: False
+	steps: 5001
+	task: domain_generalization
+	test_envs: [0]
+	trial_seed: 0
+	uda_holdout_fraction: 0
+HParams:
+	batch_size: 32
+	class_balanced: False
+	clip_model: RN50
+	data_augmentation: True
+	lr: 5e-05
+	model: resnet
+	model_name: resnet50
+	nonlinear_classifier: False
+	resnet_dropout: 0
+	weight_decay: 0.0
+Using RN50...
+[<generator object <listcomp>.<genexpr> at 0x7fbf2d521b30>, <generator object <listcomp>.<genexpr> at 0x7fbf2d521cf0>, <generator object <listcomp>.<genexpr> at 0x7fbf2d521d60>]
+Traceback (most recent call last):
+  File "/home/william/anaconda3/envs/pytorch1.9/lib/python3.8/runpy.py", line 194, in _run_module_as_main
+    return _run_code(code, main_globals, None,
+  File "/home/william/anaconda3/envs/pytorch1.9/lib/python3.8/runpy.py", line 87, in _run_code
+    exec(code, run_globals)
+  File "/mnt/d/cs/project/DomainBed/domainbed/scripts/train.py", line 219, in <module>
+    step_vals = algorithm.update(minibatches_device, uda_device)
+  File "/mnt/d/cs/project/DomainBed/domainbed/impl/clip.py", line 224, in update
+    all_y = torch.cat([y for x, y, domain_idx in minibatches])
+  File "/mnt/d/cs/project/DomainBed/domainbed/impl/clip.py", line 224, in <listcomp>
+    all_y = torch.cat([y for x, y, domain_idx in minibatches])
+ValueError: not enough values to unpack (expected 3, got 0)
+Environment:
+	Python: 3.8.16
+	PyTorch: 1.9.1+cu111
+	Torchvision: 0.10.1+cu111
+	CUDA: 11.1
+	CUDNN: 8005
+	NumPy: 1.24.2
+	PIL: 9.5.0
+Args:
+	algorithm: LanguageDrivenDGV2
+	checkpoint_freq: None
+	data_dir: ./domainbed/data
+	dataset: PACSWithDomain
+	holdout_fraction: 0.2
+	hparams: {
+    "clip_model": "RN50",
+    "resnet_dropout": 0,
+    "model": "resnet",
+    "model_name": "resnet50"
+}
+	hparams_seed: 0
+	output_dir: train_output
+	save_model_every_checkpoint: False
+	seed: 0
+	skip_model_save: False
+	steps: 5001
+	task: domain_generalization
+	test_envs: [0]
+	trial_seed: 0
+	uda_holdout_fraction: 0
+HParams:
+	batch_size: 32
+	class_balanced: False
+	clip_model: RN50
+	data_augmentation: True
+	lr: 5e-05
+	model: resnet
+	model_name: resnet50
+	nonlinear_classifier: False
+	resnet_dropout: 0
+	weight_decay: 0.0
+Using RN50...
+[(tensor([[[[1.6667, 1.6667, 1.6667,  ..., 1.6667, 1.6667, 1.6667],
+          [1.6667, 1.6667, 1.6667,  ..., 1.6667, 1.6667, 1.6667],
+          [1.6667, 1.6667, 1.6667,  ..., 1.6667, 1.6667, 1.6667],
+          ...,
+          [1.6667, 1.6667, 1.6667,  ..., 1.6667, 1.6667, 1.6667],
+          [1.6667, 1.6667, 1.6667,  ..., 1.6667, 1.6667, 1.6667],
+          [1.6667, 1.6667, 1.6667,  ..., 1.6667, 1.6667, 1.6667]],
+
+         [[1.8333, 1.8333, 1.8333,  ..., 1.8333, 1.8333, 1.8333],
+          [1.8333, 1.8333, 1.8333,  ..., 1.8333, 1.8333, 1.8333],
+          [1.8333, 1.8333, 1.8333,  ..., 1.8333, 1.8333, 1.8333],
+          ...,
+          [1.8333, 1.8333, 1.8333,  ..., 1.8333, 1.8333, 1.8333],
+          [1.8333, 1.8333, 1.8333,  ..., 1.8333, 1.8333, 1.8333],
+          [1.8333, 1.8333, 1.8333,  ..., 1.8333, 1.8333, 1.8333]],
+
+         [[2.0474, 2.0474, 2.0474,  ..., 2.0474, 2.0474, 2.0474],
+          [2.0474, 2.0474, 2.0474,  ..., 2.0474, 2.0474, 2.0474],
+          [2.0474, 2.0474, 2.0474,  ..., 2.0474, 2.0474, 2.0474],
+          ...,
+          [2.0474, 2.0474, 2.0474,  ..., 2.0474, 2.0474, 2.0474],
+          [2.0474, 2.0474, 2.0474,  ..., 2.0474, 2.0474, 2.0474],
+          [2.0474, 2.0474, 2.0474,  ..., 2.0474, 2.0474, 2.0474]]],
+
+
+        [[[2.2489, 2.2489, 2.2489,  ..., 2.2489, 2.2489, 2.2489],
+          [2.2489, 2.2489, 2.2489,  ..., 2.2489, 2.2489, 2.2489],
+          [2.2489, 2.2489, 2.2489,  ..., 2.2489, 2.2489, 2.2489],
+          ...,
+          [2.2489, 2.2489, 2.2489,  ..., 2.2489, 2.2489, 2.2489],
+          [2.2489, 2.2489, 2.2489,  ..., 2.2489, 2.2489, 2.2489],
+          [2.2489, 2.2489, 2.2489,  ..., 2.2489, 2.2489, 2.2489]],
+
+         [[2.4286, 2.4286, 2.4286,  ..., 2.4286, 2.4286, 2.4286],
+          [2.4286, 2.4286, 2.4286,  ..., 2.4286, 2.4286, 2.4286],
+          [2.4286, 2.4286, 2.4286,  ..., 2.4286, 2.4286, 2.4286],
+          ...,
+          [2.4286, 2.4286, 2.4286,  ..., 2.4286, 2.4286, 2.4286],
+          [2.4286, 2.4286, 2.4286,  ..., 2.4286, 2.4286, 2.4286],
+          [2.4286, 2.4286, 2.4286,  ..., 2.4286, 2.4286, 2.4286]],
+
+         [[2.6400, 2.6400, 2.6400,  ..., 2.6400, 2.6400, 2.6400],
+          [2.6400, 2.6400, 2.6400,  ..., 2.6400, 2.6400, 2.6400],
+          [2.6400, 2.6400, 2.6400,  ..., 2.6400, 2.6400, 2.6400],
+          ...,
+          [2.6400, 2.6400, 2.6400,  ..., 2.6400, 2.6400, 2.6400],
+          [2.6400, 2.6400, 2.6400,  ..., 2.6400, 2.6400, 2.6400],
+          [2.6400, 2.6400, 2.6400,  ..., 2.6400, 2.6400, 2.6400]]],
+
+
+        [[[1.6153, 1.6153, 1.6153,  ..., 1.6153, 1.6153, 1.6153],
+          [1.6153, 1.6153, 1.6153,  ..., 1.6153, 1.6153, 1.6153],
+          [1.6153, 1.6153, 1.6153,  ..., 1.6153, 1.6153, 1.6153],
+          ...,
+          [1.6153, 1.6153, 1.6153,  ..., 1.6153, 1.6153, 1.6153],
+          [1.6153, 1.6153, 1.6153,  ..., 1.6153, 1.6153, 1.6153],
+          [1.6153, 1.6153, 1.6153,  ..., 1.6153, 1.6153, 1.6153]],
+
+         [[1.7808, 1.7808, 1.7808,  ..., 1.7808, 1.7808, 1.7808],
+          [1.7808, 1.7808, 1.7808,  ..., 1.7808, 1.7808, 1.7808],
+          [1.7808, 1.7808, 1.7808,  ..., 1.7808, 1.7808, 1.7808],
+          ...,
+          [1.7808, 1.7808, 1.7808,  ..., 1.7808, 1.7808, 1.7808],
+          [1.7808, 1.7808, 1.7808,  ..., 1.7808, 1.7808, 1.7808],
+          [1.7808, 1.7808, 1.7808,  ..., 1.7808, 1.7808, 1.7808]],
+
+         [[1.9951, 1.9951, 1.9951,  ..., 1.9951, 1.9951, 1.9951],
+          [1.9951, 1.9951, 1.9951,  ..., 1.9951, 1.9951, 1.9951],
+          [1.9951, 1.9951, 1.9951,  ..., 1.9951, 1.9951, 1.9951],
+          ...,
+          [1.9951, 1.9951, 1.9951,  ..., 1.9951, 1.9951, 1.9951],
+          [1.9951, 1.9951, 1.9951,  ..., 1.9951, 1.9951, 1.9951],
+          [1.9951, 1.9951, 1.9951,  ..., 1.9951, 1.9951, 1.9951]]],
+
+
+        ...,
+
+
+        [[[2.2489, 2.2489, 2.2489,  ..., 2.2489, 2.2489, 2.2489],
+          [2.2489, 2.2489, 2.2489,  ..., 2.2489, 2.2489, 2.2489],
+          [2.2489, 2.2489, 2.2489,  ..., 2.2489, 2.2489, 2.2489],
+          ...,
+          [2.2489, 2.2489, 2.2489,  ..., 2.2489, 2.2489, 2.2489],
+          [2.2489, 2.2489, 2.2489,  ..., 2.2489, 2.2489, 2.2489],
+          [2.2489, 2.2489, 2.2489,  ..., 2.2489, 2.2489, 2.2489]],
+
+         [[2.4286, 2.4286, 2.4286,  ..., 2.4286, 2.4286, 2.4286],
+          [2.4286, 2.4286, 2.4286,  ..., 2.4286, 2.4286, 2.4286],
+          [2.4286, 2.4286, 2.4286,  ..., 2.4286, 2.4286, 2.4286],
+          ...,
+          [2.4286, 2.4286, 2.4286,  ..., 2.4286, 2.4286, 2.4286],
+          [2.4286, 2.4286, 2.4286,  ..., 2.4286, 2.4286, 2.4286],
+          [2.4286, 2.4286, 2.4286,  ..., 2.4286, 2.4286, 2.4286]],
+
+         [[2.6400, 2.6400, 2.6400,  ..., 2.6400, 2.6400, 2.6400],
+          [2.6400, 2.6400, 2.6400,  ..., 2.6400, 2.6400, 2.6400],
+          [2.6400, 2.6400, 2.6400,  ..., 2.6400, 2.6400, 2.6400],
+          ...,
+          [2.6400, 2.6400, 2.6400,  ..., 2.6400, 2.6400, 2.6400],
+          [2.6400, 2.6400, 2.6400,  ..., 2.6400, 2.6400, 2.6400],
+          [2.6400, 2.6400, 2.6400,  ..., 2.6400, 2.6400, 2.6400]]],
+
+
+        [[[2.2318, 2.2318, 2.2318,  ..., 2.2318, 2.2318, 2.2318],
+          [2.2318, 2.2318, 2.2318,  ..., 2.2318, 2.2318, 2.2318],
+          [2.2318, 2.2318, 2.2318,  ..., 2.2318, 2.2318, 2.2318],
+          ...,
+          [2.2318, 2.2318, 2.2318,  ..., 2.2318, 2.2318, 2.2318],
+          [2.2318, 2.2318, 2.2318,  ..., 2.2318, 2.2318, 2.2318],
+          [2.2318, 2.2318, 2.2318,  ..., 2.2318, 2.2318, 2.2318]],
+
+         [[2.4111, 2.4111, 2.4111,  ..., 2.4111, 2.4111, 2.4111],
+          [2.4111, 2.4111, 2.4111,  ..., 2.4111, 2.4111, 2.4111],
+          [2.4111, 2.4111, 2.4111,  ..., 2.4111, 2.4111, 2.4111],
+          ...,
+          [2.4111, 2.4111, 2.4111,  ..., 2.4111, 2.4111, 2.4111],
+          [2.4111, 2.4111, 2.4111,  ..., 2.4111, 2.4111, 2.4111],
+          [2.4111, 2.4111, 2.4111,  ..., 2.4111, 2.4111, 2.4111]],
+
+         [[2.6226, 2.6226, 2.6226,  ..., 2.6226, 2.6226, 2.6226],
+          [2.6226, 2.6226, 2.6226,  ..., 2.6226, 2.6226, 2.6226],
+          [2.6226, 2.6226, 2.6226,  ..., 2.6226, 2.6226, 2.6226],
+          ...,
+          [2.6226, 2.6226, 2.6226,  ..., 2.6226, 2.6226, 2.6226],
+          [2.6226, 2.6226, 2.6226,  ..., 2.6226, 2.6226, 2.6226],
+          [2.6226, 2.6226, 2.6226,  ..., 2.6226, 2.6226, 2.6226]]],
+
+
+        [[[2.2489, 2.2489, 2.2489,  ..., 2.2489, 2.2489, 2.2489],
+          [2.2489, 2.2489, 2.2489,  ..., 2.2489, 2.2489, 2.2489],
+          [2.2489, 2.2489, 2.2489,  ..., 2.2489, 2.2489, 2.2489],
+          ...,
+          [2.2489, 2.2489, 2.2489,  ..., 2.2489, 2.2489, 2.2489],
+          [2.2489, 2.2489, 2.2489,  ..., 2.2489, 2.2489, 2.2489],
+          [2.2489, 2.2489, 2.2489,  ..., 2.2489, 2.2489, 2.2489]],
+
+         [[2.4286, 2.4286, 2.4286,  ..., 2.4286, 2.4286, 2.4286],
+          [2.4286, 2.4286, 2.4286,  ..., 2.4286, 2.4286, 2.4286],
+          [2.4286, 2.4286, 2.4286,  ..., 2.4286, 2.4286, 2.4286],
+          ...,
+          [2.4286, 2.4286, 2.4286,  ..., 2.4286, 2.4286, 2.4286],
+          [2.4286, 2.4286, 2.4286,  ..., 2.4286, 2.4286, 2.4286],
+          [2.4286, 2.4286, 2.4286,  ..., 2.4286, 2.4286, 2.4286]],
+
+         [[2.6400, 2.6400, 2.6400,  ..., 2.6400, 2.6400, 2.6400],
+          [2.6400, 2.6400, 2.6400,  ..., 2.6400, 2.6400, 2.6400],
+          [2.6400, 2.6400, 2.6400,  ..., 2.6400, 2.6400, 2.6400],
+          ...,
+          [2.6400, 2.6400, 2.6400,  ..., 2.6400, 2.6400, 2.6400],
+          [2.6400, 2.6400, 2.6400,  ..., 2.6400, 2.6400, 2.6400],
+          [2.6400, 2.6400, 2.6400,  ..., 2.6400, 2.6400, 2.6400]]]],
+       device='cuda:0'), tensor([3, 1, 2, 1, 6, 0, 6, 6, 1, 2, 0, 4, 1, 6, 0, 0, 4, 4, 5, 0, 5, 4, 3, 4,
+        4, 5, 0, 3, 2, 6, 1, 1], device='cuda:0'), tensor([1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,
+        1, 1, 1, 1, 1, 1, 1, 1], device='cuda:0')), (tensor([[[[-0.9363, -0.9363, -0.9363,  ..., -1.0219, -1.0219, -1.0219],
+          [-0.9363, -0.9363, -0.9363,  ..., -1.0219, -1.0219, -1.0733],
+          [-0.9363, -0.9363, -0.9705,  ..., -1.0219, -1.0219, -1.0733],
+          ...,
+          [ 0.8447,  0.8104,  0.7591,  ...,  1.2214,  1.2214,  1.2385],
+          [ 0.8447,  0.8447,  0.7419,  ...,  1.2043,  1.2043,  1.2557],
+          [ 0.8447,  0.8447,  0.8447,  ...,  1.2899,  1.2899,  1.3070]],
+
+         [[-0.4251, -0.4251, -0.4076,  ..., -0.5301, -0.5301, -0.5301],
+          [-0.4251, -0.4251, -0.4076,  ..., -0.5301, -0.5301, -0.5476],
+          [-0.4251, -0.4251, -0.4251,  ..., -0.5301, -0.5301, -0.5476],
+          ...,
+          [ 1.3957,  1.3957,  1.3957,  ...,  1.7458,  1.7458,  1.7283],
+          [ 1.3606,  1.3782,  1.3256,  ...,  1.7633,  1.7633,  1.7458],
+          [ 1.3957,  1.3957,  1.3782,  ...,  1.7808,  1.7808,  1.7808]],
+
+         [[-0.8981, -0.8981, -0.8807,  ..., -0.9853, -0.9853, -0.9853],
+          [-0.8981, -0.8981, -0.8807,  ..., -0.9853, -0.9853, -0.9853],
+          [-0.8981, -0.8981, -0.8981,  ..., -0.9853, -0.9853, -0.9853],
+          ...,
+          [ 0.7751,  0.7402,  0.6531,  ...,  1.2108,  1.2108,  1.1759],
+          [ 0.7751,  0.7402,  0.6356,  ...,  1.2282,  1.2282,  1.2282],
+          [ 0.7925,  0.7925,  0.7402,  ...,  1.2980,  1.2980,  1.3154]]],
+
+
+        [[[ 0.9132,  0.4508, -0.0116,  ..., -0.4739, -0.1657,  0.2453],
+          [ 0.2282,  0.0398, -0.2171,  ...,  0.7591,  0.6906,  0.4851],
+          [ 0.3309,  0.5536,  0.5364,  ...,  0.9474,  0.7762,  0.6563],
+          ...,
+          [ 0.4166,  0.2111,  0.1597,  ...,  0.0227,  0.0569,  0.0056],
+          [ 0.0569,  0.2967,  0.4508,  ...,  0.1939,  0.0741,  0.0569],
+          [ 0.2453,  0.3823,  0.2967,  ..., -0.0629,  0.1939,  0.1254]],
+
+         [[ 1.1155,  0.6779,  0.2752,  ..., -0.1800,  0.1527,  0.5728],
+          [ 0.4328,  0.2752,  0.0126,  ...,  1.0105,  0.9405,  0.7654],
+          [ 0.5203,  0.7654,  0.7129,  ...,  1.1331,  0.9580,  0.8529],
+          ...,
+          [ 0.6604,  0.4678,  0.3627,  ...,  0.1352,  0.1527,  0.0826],
+          [ 0.3102,  0.5378,  0.6429,  ...,  0.3102,  0.1352,  0.1176],
+          [ 0.4503,  0.5903,  0.5203,  ...,  0.0476,  0.2752,  0.1702]],
+
+         [[ 1.2805,  0.8274,  0.3742,  ..., -0.0615,  0.2348,  0.6531],
+          [ 0.5659,  0.3916,  0.1302,  ...,  1.1585,  1.0888,  0.9145],
+          [ 0.6531,  0.8971,  0.8448,  ...,  1.3502,  1.1585,  1.0714],
+          ...,
+          [ 0.6705,  0.4614,  0.4091,  ...,  0.3045,  0.3393,  0.2871],
+          [ 0.3219,  0.5659,  0.6705,  ...,  0.5136,  0.3568,  0.3393],
+          [ 0.4614,  0.6008,  0.5136,  ...,  0.2522,  0.4962,  0.4091]]],
+
+
+        [[[-0.9534, -0.7479, -0.7822,  ..., -1.1589, -1.2445, -1.2445],
+          [-0.9363, -0.8678, -0.8678,  ..., -1.2274, -1.2959, -1.2445],
+          [-0.9877, -1.0219, -0.9020,  ..., -1.2959, -1.1932, -1.1418],
+          ...,
+          [-0.9877, -0.5938, -0.4739,  ..., -0.3198, -0.2684, -0.3541],
+          [-1.2274, -0.3369, -0.5596,  ..., -0.3541, -0.3883, -0.3712],
+          [-1.2445, -0.7308, -1.0733,  ..., -0.4568, -0.4911, -0.6281]],
+
+         [[-0.8452, -0.6352, -0.6702,  ..., -1.0553, -1.1429, -1.1429],
+          [-0.8277, -0.7577, -0.7577,  ..., -1.1253, -1.1954, -1.1429],
+          [-0.8803, -0.9153, -0.7927,  ..., -1.1954, -1.0903, -1.0378],
+          ...,
+          [-0.8803, -0.4776, -0.3550,  ..., -0.1975, -0.1450, -0.2325],
+          [-1.1253, -0.2150, -0.4426,  ..., -0.2325, -0.2675, -0.2500],
+          [-1.1429, -0.6176, -0.9678,  ..., -0.3375, -0.3725, -0.5126]],
+
+         [[-0.6193, -0.4101, -0.4450,  ..., -0.8284, -0.9156, -0.9156],
+          [-0.6018, -0.5321, -0.5321,  ..., -0.8981, -0.9678, -0.9156],
+          [-0.6541, -0.6890, -0.5670,  ..., -0.9678, -0.8633, -0.8110],
+          ...,
+          [-0.6541, -0.2532, -0.1312,  ...,  0.0256,  0.0779, -0.0092],
+          [-0.8981,  0.0082, -0.2184,  ..., -0.0092, -0.0441, -0.0267],
+          [-0.9156, -0.3927, -0.7413,  ..., -0.1138, -0.1487, -0.2881]]],
+
+
+        ...,
+
+
+        [[[ 1.7865,  1.7865,  1.7865,  ...,  1.7865,  1.7865,  1.7865],
+          [ 1.7865,  1.7865,  1.7865,  ...,  1.7865,  1.7865,  1.7865],
+          [ 1.7865,  1.7865,  1.7865,  ...,  1.7865,  1.7865,  1.7865],
+          ...,
+          [ 1.1700,  1.0844,  0.8789,  ...,  0.7419,  0.9817,  0.9132],
+          [ 1.2557,  1.2899,  1.1187,  ...,  0.6392,  0.8618,  0.8618],
+          [ 1.0844,  1.2214,  1.2899,  ...,  0.6734,  0.8618,  0.7933]],
+
+         [[ 1.9559,  1.9559,  1.9559,  ...,  1.9559,  1.9559,  1.9559],
+          [ 1.9559,  1.9559,  1.9559,  ...,  1.9559,  1.9559,  1.9559],
+          [ 1.9559,  1.9559,  1.9559,  ...,  1.9559,  1.9559,  1.9559],
+          ...,
+          [ 1.1506,  1.0805,  0.9055,  ...,  0.4678,  0.6954,  0.6954],
+          [ 1.2206,  1.2381,  1.0980,  ...,  0.3627,  0.5903,  0.6254],
+          [ 0.9405,  1.1155,  1.1506,  ...,  0.3978,  0.5903,  0.5728]],
+
+         [[ 2.1694,  2.1694,  2.1694,  ...,  2.1694,  2.1694,  2.1694],
+          [ 2.1694,  2.1694,  2.1694,  ...,  2.1694,  2.1694,  2.1694],
+          [ 2.1694,  2.1694,  2.1694,  ...,  2.1694,  2.1694,  2.1694],
+          ...,
+          [ 1.2980,  1.1411,  0.8797,  ...,  0.7228,  1.0017,  0.9668],
+          [ 1.3851,  1.3851,  1.1585,  ...,  0.6182,  0.8797,  0.9145],
+          [ 1.1585,  1.2805,  1.3328,  ...,  0.6182,  0.8099,  0.8622]]],
+
+
+        [[[ 1.6324,  1.6324,  1.6495,  ...,  0.2796,  0.2624,  0.2796],
+          [ 1.6667,  1.6667,  1.6667,  ...,  0.3138,  0.2282,  0.2624],
+          [ 1.6667,  1.6667,  1.6838,  ...,  0.3309,  0.2624,  0.2624],
+          ...,
+          [ 1.6667,  1.6667,  1.6667,  ...,  0.9303,  0.8961,  0.8789],
+          [ 1.6667,  1.6667,  1.6667,  ...,  0.9817,  0.8961,  0.8789],
+          [ 1.6667,  1.6667,  1.6667,  ...,  1.0159,  0.9132,  0.8961]],
+
+         [[ 1.8859,  1.8859,  1.9209,  ...,  0.3452,  0.2927,  0.2577],
+          [ 1.9384,  1.9384,  1.9384,  ...,  0.3627,  0.2577,  0.2402],
+          [ 1.9384,  1.9384,  1.9559,  ...,  0.3978,  0.2927,  0.2402],
+          ...,
+          [ 1.8508,  1.8508,  1.8508,  ...,  1.0805,  1.0455,  1.0280],
+          [ 1.8508,  1.8508,  1.8508,  ...,  1.1331,  1.0455,  1.0280],
+          [ 1.8508,  1.8508,  1.8508,  ...,  1.1681,  1.0630,  1.0455]],
+
+         [[ 1.7337,  1.7337,  1.7511,  ...,  0.1651,  0.1999,  0.2696],
+          [ 1.7511,  1.7511,  1.7511,  ...,  0.1999,  0.1651,  0.2522],
+          [ 1.7511,  1.7511,  1.8034,  ...,  0.2348,  0.1999,  0.2522],
+          ...,
+          [ 1.8208,  1.8208,  1.8208,  ...,  0.3568,  0.4439,  0.4614],
+          [ 1.8208,  1.8208,  1.8208,  ...,  0.4439,  0.4788,  0.4614],
+          [ 1.8208,  1.8208,  1.8208,  ...,  0.4788,  0.5136,  0.4788]]],
+
+
+        [[[-1.0904, -1.0733, -1.0048,  ...,  0.2282,  0.3481, -0.0801],
+          [-1.0904, -1.0904, -1.0390,  ..., -0.3883, -0.4397, -0.6623],
+          [-1.0733, -1.0733, -1.0048,  ..., -0.7479, -0.8507, -0.9705],
+          ...,
+          [-1.6384, -1.6555, -1.6384,  ..., -1.5528, -1.6384, -1.6042],
+          [-1.6727, -1.7583, -1.7240,  ..., -1.5185, -1.5185, -1.5699],
+          [-1.6898, -1.6898, -1.6555,  ..., -1.5185, -1.5185, -1.5185]],
+
+         [[-0.7052, -0.7052, -0.6702,  ...,  0.8354,  0.9580,  0.5378],
+          [-0.7052, -0.7052, -0.6877,  ...,  0.2577,  0.2227, -0.0049],
+          [-0.7052, -0.7052, -0.6702,  ..., -0.0749, -0.1975, -0.3025],
+          ...,
+          [-1.8606, -1.8606, -1.8431,  ..., -1.8081, -1.8957, -1.8606],
+          [-1.8957, -1.9657, -1.9482,  ..., -1.7731, -1.7731, -1.8256],
+          [-1.9307, -1.9307, -1.8606,  ..., -1.7731, -1.7731, -1.7731]],
+
+         [[-0.8633, -0.8284, -0.8110,  ...,  0.9494,  1.0888,  0.6356],
+          [-0.8633, -0.8633, -0.8284,  ...,  0.3568,  0.3045,  0.0605],
+          [-0.8284, -0.8284, -0.8110,  ..., -0.0092, -0.1138, -0.2358],
+          ...,
+          [-1.1247, -1.1247, -1.1073,  ..., -1.0376, -1.1247, -1.1073],
+          [-1.1421, -1.2467, -1.2119,  ..., -1.0027, -1.0027, -1.0550],
+          [-1.1944, -1.1944, -1.1421,  ..., -1.0027, -1.0027, -1.0027]]]],
+       device='cuda:0'), tensor([0, 1, 2, 5, 6, 6, 3, 2, 0, 5, 6, 6, 5, 6, 6, 6, 0, 6, 6, 2, 4, 6, 1, 2,
+        0, 5, 4, 6, 0, 5, 6, 6], device='cuda:0'), tensor([2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2,
+        2, 2, 2, 2, 2, 2, 2, 2], device='cuda:0')), (tensor([[[[1.1358, 1.1358, 1.1358,  ..., 1.1358, 1.1358, 1.1358],
+          [1.1358, 1.1358, 1.1358,  ..., 1.1358, 1.1358, 1.1358],
+          [1.1358, 1.1358, 1.1358,  ..., 1.1358, 1.1358, 1.1358],
+          ...,
+          [1.1358, 1.1358, 1.1358,  ..., 1.1358, 1.1358, 1.1358],
+          [1.1358, 1.1358, 1.1358,  ..., 1.1358, 1.1358, 1.1358],
+          [1.1358, 1.1358, 1.1358,  ..., 1.1358, 1.1358, 1.1358]],
+
+         [[1.2906, 1.2906, 1.2906,  ..., 1.2906, 1.2906, 1.2906],
+          [1.2906, 1.2906, 1.2906,  ..., 1.2906, 1.2906, 1.2906],
+          [1.2906, 1.2906, 1.2906,  ..., 1.2906, 1.2906, 1.2906],
+          ...,
+          [1.2906, 1.2906, 1.2906,  ..., 1.2906, 1.2906, 1.2906],
+          [1.2906, 1.2906, 1.2906,  ..., 1.2906, 1.2906, 1.2906],
+          [1.2906, 1.2906, 1.2906,  ..., 1.2906, 1.2906, 1.2906]],
+
+         [[1.5071, 1.5071, 1.5071,  ..., 1.5071, 1.5071, 1.5071],
+          [1.5071, 1.5071, 1.5071,  ..., 1.5071, 1.5071, 1.5071],
+          [1.5071, 1.5071, 1.5071,  ..., 1.5071, 1.5071, 1.5071],
+          ...,
+          [1.5071, 1.5071, 1.5071,  ..., 1.5071, 1.5071, 1.5071],
+          [1.5071, 1.5071, 1.5071,  ..., 1.5071, 1.5071, 1.5071],
+          [1.5071, 1.5071, 1.5071,  ..., 1.5071, 1.5071, 1.5071]]],
+
+
+        [[[2.2489, 2.2489, 2.2489,  ..., 2.2489, 2.2489, 2.2489],
+          [2.2489, 2.2489, 2.2489,  ..., 2.2489, 2.2489, 2.2489],
+          [2.2489, 2.2489, 2.2489,  ..., 2.2489, 2.2489, 2.2489],
+          ...,
+          [2.2489, 2.2489, 2.2489,  ..., 2.2489, 2.2489, 2.2489],
+          [2.2489, 2.2489, 2.2489,  ..., 2.2489, 2.2489, 2.2489],
+          [2.2489, 2.2489, 2.2489,  ..., 2.2489, 2.2489, 2.2489]],
+
+         [[2.4286, 2.4286, 2.4286,  ..., 2.4286, 2.4286, 2.4286],
+          [2.4286, 2.4286, 2.4286,  ..., 2.4286, 2.4286, 2.4286],
+          [2.4286, 2.4286, 2.4286,  ..., 2.4286, 2.4286, 2.4286],
+          ...,
+          [2.4286, 2.4286, 2.4286,  ..., 2.4286, 2.4286, 2.4286],
+          [2.4286, 2.4286, 2.4286,  ..., 2.4286, 2.4286, 2.4286],
+          [2.4286, 2.4286, 2.4286,  ..., 2.4286, 2.4286, 2.4286]],
+
+         [[2.6400, 2.6400, 2.6400,  ..., 2.6400, 2.6400, 2.6400],
+          [2.6400, 2.6400, 2.6400,  ..., 2.6400, 2.6400, 2.6400],
+          [2.6400, 2.6400, 2.6400,  ..., 2.6400, 2.6400, 2.6400],
+          ...,
+          [2.6400, 2.6400, 2.6400,  ..., 2.6400, 2.6400, 2.6400],
+          [2.6400, 2.6400, 2.6400,  ..., 2.6400, 2.6400, 2.6400],
+          [2.6400, 2.6400, 2.6400,  ..., 2.6400, 2.6400, 2.6400]]],
+
+
+        [[[2.2489, 2.2489, 2.2489,  ..., 2.2489, 2.2489, 2.2489],
+          [2.2489, 2.2489, 2.2489,  ..., 2.2489, 2.2489, 2.2489],
+          [2.2489, 2.2489, 2.2489,  ..., 2.2489, 2.2489, 2.2489],
+          ...,
+          [2.2489, 2.2489, 2.2489,  ..., 2.2489, 2.2489, 2.2489],
+          [2.2489, 2.2489, 2.2489,  ..., 2.2489, 2.2489, 2.2489],
+          [2.2489, 2.2489, 2.2489,  ..., 2.2489, 2.2489, 2.2489]],
+
+         [[2.4286, 2.4286, 2.4286,  ..., 2.4286, 2.4286, 2.4286],
+          [2.4286, 2.4286, 2.4286,  ..., 2.4286, 2.4286, 2.4286],
+          [2.4286, 2.4286, 2.4286,  ..., 2.4286, 2.4286, 2.4286],
+          ...,
+          [2.4286, 2.4286, 2.4286,  ..., 2.4286, 2.4286, 2.4286],
+          [2.4286, 2.4286, 2.4286,  ..., 2.4286, 2.4286, 2.4286],
+          [2.4286, 2.4286, 2.4286,  ..., 2.4286, 2.4286, 2.4286]],
+
+         [[2.6400, 2.6400, 2.6400,  ..., 2.6400, 2.6400, 2.6400],
+          [2.6400, 2.6400, 2.6400,  ..., 2.6400, 2.6400, 2.6400],
+          [2.6400, 2.6400, 2.6400,  ..., 2.6400, 2.6400, 2.6400],
+          ...,
+          [2.6400, 2.6400, 2.6400,  ..., 2.6400, 2.6400, 2.6400],
+          [2.6400, 2.6400, 2.6400,  ..., 2.6400, 2.6400, 2.6400],
+          [2.6400, 2.6400, 2.6400,  ..., 2.6400, 2.6400, 2.6400]]],
+
+
+        ...,
+
+
+        [[[1.3070, 1.3070, 1.3070,  ..., 1.3070, 1.3070, 1.3070],
+          [1.3070, 1.3070, 1.3070,  ..., 1.3070, 1.3070, 1.3070],
+          [1.3070, 1.3070, 1.3070,  ..., 1.3070, 1.3070, 1.3070],
+          ...,
+          [1.3070, 1.3070, 1.3070,  ..., 1.3070, 1.3070, 1.3070],
+          [1.3070, 1.3070, 1.3070,  ..., 1.3070, 1.3070, 1.3070],
+          [1.3070, 1.3070, 1.3070,  ..., 1.3070, 1.3070, 1.3070]],
+
+         [[1.4657, 1.4657, 1.4657,  ..., 1.4657, 1.4657, 1.4657],
+          [1.4657, 1.4657, 1.4657,  ..., 1.4657, 1.4657, 1.4657],
+          [1.4657, 1.4657, 1.4657,  ..., 1.4657, 1.4657, 1.4657],
+          ...,
+          [1.4657, 1.4657, 1.4657,  ..., 1.4657, 1.4657, 1.4657],
+          [1.4657, 1.4657, 1.4657,  ..., 1.4657, 1.4657, 1.4657],
+          [1.4657, 1.4657, 1.4657,  ..., 1.4657, 1.4657, 1.4657]],
+
+         [[1.6814, 1.6814, 1.6814,  ..., 1.6814, 1.6814, 1.6814],
+          [1.6814, 1.6814, 1.6814,  ..., 1.6814, 1.6814, 1.6814],
+          [1.6814, 1.6814, 1.6814,  ..., 1.6814, 1.6814, 1.6814],
+          ...,
+          [1.6814, 1.6814, 1.6814,  ..., 1.6814, 1.6814, 1.6814],
+          [1.6814, 1.6814, 1.6814,  ..., 1.6814, 1.6814, 1.6814],
+          [1.6814, 1.6814, 1.6814,  ..., 1.6814, 1.6814, 1.6814]]],
+
+
+        [[[1.9578, 1.9578, 1.9578,  ..., 1.9578, 1.9578, 1.9578],
+          [1.9578, 1.9578, 1.9578,  ..., 1.9578, 1.9578, 1.9578],
+          [1.9578, 1.9578, 1.9578,  ..., 1.9578, 1.9578, 1.9578],
+          ...,
+          [1.9578, 1.9578, 1.9578,  ..., 1.9578, 1.9578, 1.9578],
+          [1.9578, 1.9578, 1.9578,  ..., 1.9578, 1.9578, 1.9578],
+          [1.9578, 1.9578, 1.9578,  ..., 1.9578, 1.9578, 1.9578]],
+
+         [[2.1310, 2.1310, 2.1310,  ..., 2.1310, 2.1310, 2.1310],
+          [2.1310, 2.1310, 2.1310,  ..., 2.1310, 2.1310, 2.1310],
+          [2.1310, 2.1310, 2.1310,  ..., 2.1310, 2.1310, 2.1310],
+          ...,
+          [2.1310, 2.1310, 2.1310,  ..., 2.1310, 2.1310, 2.1310],
+          [2.1310, 2.1310, 2.1310,  ..., 2.1310, 2.1310, 2.1310],
+          [2.1310, 2.1310, 2.1310,  ..., 2.1310, 2.1310, 2.1310]],
+
+         [[2.3437, 2.3437, 2.3437,  ..., 2.3437, 2.3437, 2.3437],
+          [2.3437, 2.3437, 2.3437,  ..., 2.3437, 2.3437, 2.3437],
+          [2.3437, 2.3437, 2.3437,  ..., 2.3437, 2.3437, 2.3437],
+          ...,
+          [2.3437, 2.3437, 2.3437,  ..., 2.3437, 2.3437, 2.3437],
+          [2.3437, 2.3437, 2.3437,  ..., 2.3437, 2.3437, 2.3437],
+          [2.3437, 2.3437, 2.3437,  ..., 2.3437, 2.3437, 2.3437]]],
+
+
+        [[[1.5810, 1.5810, 1.5810,  ..., 1.5810, 1.5810, 1.5810],
+          [1.5810, 1.5810, 1.5810,  ..., 1.5810, 1.5810, 1.5810],
+          [1.5810, 1.5810, 1.5810,  ..., 1.5810, 1.5810, 1.5810],
+          ...,
+          [1.5810, 1.5810, 1.5810,  ..., 1.5810, 1.5810, 1.5810],
+          [1.5810, 1.5810, 1.5810,  ..., 1.5810, 1.5810, 1.5810],
+          [1.5810, 1.5810, 1.5810,  ..., 1.5810, 1.5810, 1.5810]],
+
+         [[1.7458, 1.7458, 1.7458,  ..., 1.7458, 1.7458, 1.7458],
+          [1.7458, 1.7458, 1.7458,  ..., 1.7458, 1.7458, 1.7458],
+          [1.7458, 1.7458, 1.7458,  ..., 1.7458, 1.7458, 1.7458],
+          ...,
+          [1.7458, 1.7458, 1.7458,  ..., 1.7458, 1.7458, 1.7458],
+          [1.7458, 1.7458, 1.7458,  ..., 1.7458, 1.7458, 1.7458],
+          [1.7458, 1.7458, 1.7458,  ..., 1.7458, 1.7458, 1.7458]],
+
+         [[1.9603, 1.9603, 1.9603,  ..., 1.9603, 1.9603, 1.9603],
+          [1.9603, 1.9603, 1.9603,  ..., 1.9603, 1.9603, 1.9603],
+          [1.9603, 1.9603, 1.9603,  ..., 1.9603, 1.9603, 1.9603],
+          ...,
+          [1.9603, 1.9603, 1.9603,  ..., 1.9603, 1.9603, 1.9603],
+          [1.9603, 1.9603, 1.9603,  ..., 1.9603, 1.9603, 1.9603],
+          [1.9603, 1.9603, 1.9603,  ..., 1.9603, 1.9603, 1.9603]]]],
+       device='cuda:0'), tensor([3, 2, 2, 0, 2, 5, 1, 2, 1, 4, 3, 1, 1, 0, 4, 0, 1, 1, 3, 0, 0, 2, 3, 2,
+        1, 2, 1, 3, 3, 1, 6, 4], device='cuda:0'), tensor([3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3,
+        3, 3, 3, 3, 3, 3, 3, 3], device='cuda:0'))]
+tensor([1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,
+        1, 1, 1, 1, 1, 1, 1, 1, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2,
+        2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 3, 3, 3, 3, 3, 3, 3, 3,
+        3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3],
+       device='cuda:0')
+Traceback (most recent call last):
+  File "/home/william/anaconda3/envs/pytorch1.9/lib/python3.8/runpy.py", line 194, in _run_module_as_main
+    return _run_code(code, main_globals, None,
+  File "/home/william/anaconda3/envs/pytorch1.9/lib/python3.8/runpy.py", line 87, in _run_code
+    exec(code, run_globals)
+  File "/mnt/d/cs/project/DomainBed/domainbed/scripts/train.py", line 219, in <module>
+    step_vals = algorithm.update(minibatches_device, uda_device)
+  File "/mnt/d/cs/project/DomainBed/domainbed/impl/clip.py", line 230, in update
+    features = self.atten_pool(self.featurizer(all_x, return_feature=True)) # b, d, h, w
+  File "/home/william/anaconda3/envs/pytorch1.9/lib/python3.8/site-packages/torch/nn/modules/module.py", line 1051, in _call_impl
+    return forward_call(*input, **kwargs)
+  File "/mnt/d/cs/project/DomainBed/domainbed/networks.py", line 122, in forward
+    x = self.network.layer3(x)
+  File "/home/william/anaconda3/envs/pytorch1.9/lib/python3.8/site-packages/torch/nn/modules/module.py", line 1051, in _call_impl
+    return forward_call(*input, **kwargs)
+  File "/home/william/anaconda3/envs/pytorch1.9/lib/python3.8/site-packages/torch/nn/modules/container.py", line 139, in forward
+    input = module(input)
+  File "/home/william/anaconda3/envs/pytorch1.9/lib/python3.8/site-packages/torch/nn/modules/module.py", line 1051, in _call_impl
+    return forward_call(*input, **kwargs)
+  File "/home/william/anaconda3/envs/pytorch1.9/lib/python3.8/site-packages/torchvision/models/resnet.py", line 129, in forward
+    out = self.bn2(out)
+  File "/home/william/anaconda3/envs/pytorch1.9/lib/python3.8/site-packages/torch/nn/modules/module.py", line 1051, in _call_impl
+    return forward_call(*input, **kwargs)
+  File "/home/william/anaconda3/envs/pytorch1.9/lib/python3.8/site-packages/torch/nn/modules/batchnorm.py", line 167, in forward
+    return F.batch_norm(
+  File "/home/william/anaconda3/envs/pytorch1.9/lib/python3.8/site-packages/torch/nn/functional.py", line 2281, in batch_norm
+    return torch.batch_norm(
+RuntimeError: CUDA out of memory. Tried to allocate 20.00 MiB (GPU 0; 8.00 GiB total capacity; 7.29 GiB already allocated; 0 bytes free; 7.34 GiB reserved in total by PyTorch)
+Environment:
+	Python: 3.8.16
+	PyTorch: 1.9.1+cu111
+	Torchvision: 0.10.1+cu111
+	CUDA: 11.1
+	CUDNN: 8005
+	NumPy: 1.24.2
+	PIL: 9.5.0
+Args:
+	algorithm: LanguageDrivenDGV2
+	checkpoint_freq: None
+	data_dir: ./domainbed/data
+	dataset: PACSWithDomain
+	holdout_fraction: 0.2
+	hparams: {
+    "clip_model": "RN50",
+    "resnet_dropout": 0,
+    "model": "resnet",
+    "model_name": "resnet50"
+}
+	hparams_seed: 0
+	output_dir: train_output
+	save_model_every_checkpoint: False
+	seed: 0
+	skip_model_save: False
+	steps: 5001
+	task: domain_generalization
+	test_envs: [0]
+	trial_seed: 0
+	uda_holdout_fraction: 0
+HParams:
+	batch_size: 32
+	class_balanced: False
+	clip_model: RN50
+	data_augmentation: True
+	lr: 5e-05
+	model: resnet
+	model_name: resnet50
+	nonlinear_classifier: False
+	resnet_dropout: 0
+	weight_decay: 0.0
+Using RN50...
+Traceback (most recent call last):
+  File "/home/william/anaconda3/envs/pytorch1.9/lib/python3.8/runpy.py", line 194, in _run_module_as_main
+    return _run_code(code, main_globals, None,
+  File "/home/william/anaconda3/envs/pytorch1.9/lib/python3.8/runpy.py", line 87, in _run_code
+    exec(code, run_globals)
+  File "/mnt/d/cs/project/DomainBed/domainbed/scripts/train.py", line 220, in <module>
+    step_vals = algorithm.update(minibatches_device, uda_device)
+  File "/mnt/d/cs/project/DomainBed/domainbed/impl/clip.py", line 228, in update
+    features = self.atten_pool(self.featurizer(all_x, return_feature=True)) # b, d, h, w
+  File "/home/william/anaconda3/envs/pytorch1.9/lib/python3.8/site-packages/torch/nn/modules/module.py", line 1051, in _call_impl
+    return forward_call(*input, **kwargs)
+  File "/mnt/d/cs/project/DomainBed/domainbed/networks.py", line 122, in forward
+    x = self.network.layer3(x)
+  File "/home/william/anaconda3/envs/pytorch1.9/lib/python3.8/site-packages/torch/nn/modules/module.py", line 1051, in _call_impl
+    return forward_call(*input, **kwargs)
+  File "/home/william/anaconda3/envs/pytorch1.9/lib/python3.8/site-packages/torch/nn/modules/container.py", line 139, in forward
+    input = module(input)
+  File "/home/william/anaconda3/envs/pytorch1.9/lib/python3.8/site-packages/torch/nn/modules/module.py", line 1051, in _call_impl
+    return forward_call(*input, **kwargs)
+  File "/home/william/anaconda3/envs/pytorch1.9/lib/python3.8/site-packages/torchvision/models/resnet.py", line 129, in forward
+    out = self.bn2(out)
+  File "/home/william/anaconda3/envs/pytorch1.9/lib/python3.8/site-packages/torch/nn/modules/module.py", line 1051, in _call_impl
+    return forward_call(*input, **kwargs)
+  File "/home/william/anaconda3/envs/pytorch1.9/lib/python3.8/site-packages/torch/nn/modules/batchnorm.py", line 167, in forward
+    return F.batch_norm(
+  File "/home/william/anaconda3/envs/pytorch1.9/lib/python3.8/site-packages/torch/nn/functional.py", line 2281, in batch_norm
+    return torch.batch_norm(
+RuntimeError: CUDA out of memory. Tried to allocate 20.00 MiB (GPU 0; 8.00 GiB total capacity; 7.29 GiB already allocated; 0 bytes free; 7.34 GiB reserved in total by PyTorch)
