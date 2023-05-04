@@ -224,7 +224,12 @@ class LanguageDrivenDGV2(ERM):
         all_x = torch.cat([x for x, y, domain_idx in minibatches])
         all_y = torch.cat([y for x, y, domain_idx in minibatches])
         all_domain_idx = torch.cat([domain_idx for x, y, domain_idx in minibatches])
-        domain_names = [self.domain_names[i] for i in torch.unique(all_domain_idx)]
+        
+        existing_domains = torch.unique(all_domain_idx)
+        domain_names = [self.domain_names[i] for i in existing_domains]
+        new_domain_idx = all_domain_idx.clone()
+        for i, idx in enumerate(existing_domains):
+            new_domain_idx[all_domain_idx == idx] = i
         
         class_prompt = torch.cat([clip.tokenize(f'a photo of a {cls_name}') for cls_name in self.class_names]).to(self.device)
         domain_prompt = torch.cat([clip.tokenize(f'a photo of a {domain_name}') for domain_name in domain_names]).to(self.device)
@@ -234,7 +239,7 @@ class LanguageDrivenDGV2(ERM):
                 domain_class_prompt.append(clip.tokenize(f'a {domain_name} photo of a {class_name}'))
         domain_class_prompt = torch.cat(domain_class_prompt).to(self.device)
         
-        cls_domain_label = all_y * len(torch.unique(all_domain_idx)) + all_domain_idx
+        cls_domain_label = all_y * len(existing_domains) + new_domain_idx
         
         features = self.atten_pool(self.featurizer(all_x, return_feature=True)) # b, d, h, w
         # features = features.flatten(2).permute(0, 2, 1) # bs N, d
@@ -252,7 +257,7 @@ class LanguageDrivenDGV2(ERM):
         
         
         loss_cls = F.cross_entropy(self.t1 * image_features @ class_text_features.T, all_y)
-        loss_domain = F.cross_entropy(self.t2 * image_features @ domain_text_features.T, all_domain_idx)
+        loss_domain = F.cross_entropy(self.t2 * image_features @ domain_text_features.T, new_domain_idx)
         loss_cls_domain = F.cross_entropy(self.t3 * image_features @ domain_class_text_features.T, cls_domain_label)
         
         loss = (loss_cls + 0.5 * loss_domain + 0.5 * loss_cls_domain) / 2
