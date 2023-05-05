@@ -9,7 +9,7 @@ import clip
 from clip.model import AttentionPool2d
 from .base import Algorithm
 from .original import ERM
-from .sma import MovingAvg
+from .sma import MovingAvg, BetaMovingAvg
 
 # zero-shot CLIP
 class CLIP(Algorithm):
@@ -139,6 +139,24 @@ class CLIP_FinetuneWithTextFreeze_EMA(CLIP_FinetuneWithTextFreeze, MovingAvg):
     def __init__(self, input_shape, num_classes, num_domains, hparams):
         CLIP_FinetuneWithTextFreeze.__init__(self, input_shape, num_classes, num_domains, hparams)
         MovingAvg.__init__(self, self.featurizer, rho=hparams.get("ema_rho", None))
+
+    def update(self, minibatches, unlabeled=None):
+        loss_dict = CLIP_FinetuneWithTextFreeze.update(self, minibatches, unlabeled=unlabeled)
+        self.update_sma()
+        return loss_dict
+    
+    def predict(self, x):
+        self.network_sma.eval()
+        logits_per_image, _ = self.network_sma(x, self.prompt)
+        return logits_per_image.softmax(dim=-1)
+
+class CLIP_FinetuneWithTextFreeze_BetaEMA(CLIP_FinetuneWithTextFreeze, BetaMovingAvg):
+    """
+    Empirical Risk Minimization (ERM) with Simple Moving Average (SMA) prediction model
+    """
+    def __init__(self, input_shape, num_classes, num_domains, hparams):
+        CLIP_FinetuneWithTextFreeze.__init__(self, input_shape, num_classes, num_domains, hparams)
+        BetaMovingAvg.__init__(self, self.featurizer)
 
     def update(self, minibatches, unlabeled=None):
         loss_dict = CLIP_FinetuneWithTextFreeze.update(self, minibatches, unlabeled=unlabeled)
