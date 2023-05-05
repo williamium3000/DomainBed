@@ -1,5 +1,5 @@
 {
-    "clip_model": "ViT-B/32",
+    "clip_model": "ViT-B/16",
     "model": "resnet",
     "model_name": "resnet50",
     "resnet_dropout": 0

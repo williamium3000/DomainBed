@@ -200,10 +200,7 @@ class LanguageDrivenDGV2(ERM):
         for param in self.clip_model.parameters():
             param.requires_grad = False
         
-        if self.clip_model.has_cls_token:
-            out_feature_clip = self.clip_model.width
-        else:
-            out_feature_clip = self.clip_model.num_features
+        out_feature_clip = self.clip_model.num_features
             
         self.atten_pool = AttentionPool2d(input_shape[-1] // 32, out_feature, 32, out_feature_clip)
 
