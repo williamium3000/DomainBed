@@ -29,7 +29,7 @@ class CLIP(Algorithm):
         logits_per_image, _ = self.model(x, self.prompt)
         return logits_per_image.softmax(dim=-1)
 
-class CLIP_LP(ERM): 
+class CLIP_LP(Algorithm): 
     def __init__(self, input_shape, num_classes, num_domains, hparams):
         super(CLIP_LP, self).__init__(input_shape, num_classes, num_domains, hparams)
         self.device = 'cuda' if torch.cuda.is_available() else 'cpu'
@@ -60,7 +60,7 @@ class CLIP_LP(ERM):
     def predict(self, x):
         return self.classifier(self.featurizer.forward_image(x))
 
-class CLIP_Finetune(ERM): 
+class CLIP_Finetune(Algorithm): 
     def __init__(self, input_shape, num_classes, num_domains, hparams):
         super(CLIP_Finetune, self).__init__(input_shape, num_classes, num_domains, hparams)
         self.device = 'cuda' if torch.cuda.is_available() else 'cpu'
@@ -86,7 +86,7 @@ class CLIP_Finetune(ERM):
     def predict(self, x):
         return self.classifier(self.featurizer.forward_image(x))
 
-class CLIP_FinetuneWithTextFreeze(ERM): 
+class CLIP_FinetuneWithTextFreeze(Algorithm): 
     def __init__(self, input_shape, num_classes, num_domains, hparams):
         super(CLIP_FinetuneWithTextFreeze, self).__init__(input_shape, num_classes, num_domains, hparams)
         self.device = 'cuda' if torch.cuda.is_available() else 'cpu'
@@ -118,7 +118,7 @@ class CLIP_FinetuneWithTextFreeze(ERM):
         return logits_per_image.softmax(dim=-1)
     
 
-class LanguageDrivenDG(ERM): 
+class LanguageDrivenDG(Algorithm): 
     def __init__(self, input_shape, num_classes, num_domains, hparams):
         super(LanguageDrivenDG, self).__init__(input_shape, num_classes, num_domains, hparams)
         self.device = 'cuda' if torch.cuda.is_available() else 'cpu'
@@ -187,7 +187,7 @@ class LanguageDrivenDG(ERM):
         return similarity
 
 
-class LanguageDrivenDGV2(ERM): 
+class LanguageDrivenDGV2(Algorithm): 
     def __init__(self, input_shape, num_classes, num_domains, hparams):
         super(LanguageDrivenDGV2, self).__init__(input_shape, num_classes, num_domains, hparams)
         self.device = 'cuda' if torch.cuda.is_available() else 'cpu'
@@ -306,3 +306,104 @@ class LanguageDrivenDGV2_EMA(LanguageDrivenDGV2, MovingAvg):
         
         similarity  = image_features @ text_features.T
         return similarity
+
+
+class LanguageDrivenDGV3(Algorithm): 
+    def __init__(self, input_shape, num_classes, num_domains, hparams):
+        super(LanguageDrivenDGV3, self).__init__(input_shape, num_classes, num_domains, hparams)
+        self.device = 'cuda' if torch.cuda.is_available() else 'cpu'
+        
+        self.hparams["return_feature"] = True
+        self.featurizer = networks.Featurizer(input_shape, self.hparams)
+        out_feature = self.featurizer.n_outputs
+        self.classifier = networks.Classifier(
+            out_feature,
+            num_classes,
+            self.hparams['nonlinear_classifier'])
+        
+        self.dropout = nn.Dropout(hparams['resnet_dropout'])
+        
+        self.clip_model = networks.CLIP(self.hparams)
+        for param in self.clip_model.parameters():
+            param.requires_grad = False
+        
+        if self.clip_model.has_cls_token:
+            out_feature_clip = self.clip_model.width
+        else:
+            out_feature_clip = self.clip_model.num_features
+            
+        self.atten_pool = AttentionPool2d(input_shape[-1] // 32, out_feature, 32, out_feature_clip)
+        self.network = nn.ModuleDict(
+            {
+                        'featurizer': self.featurizer,
+                        'atten_pool': self.atten_pool,
+                        'classifier': self.classifier
+                })
+        t = hparams.get("t", 1.0)
+        self.t = nn.Parameter(torch.ones([]) / t, requires_grad=True)
+        self.prompt = torch.cat([clip.tokenize(f'a photo of a {cls_name}') for cls_name in hparams['class_names']]).to(self.device)
+        
+        self.optimizer = torch.optim.Adam(
+            list(self.network.parameters()) + [self.t.data, ] + list(self.classifier.parameters()),
+            lr=self.hparams["lr"],
+            weight_decay=self.hparams['weight_decay']
+        )
+        
+    def update(self, minibatches, unlabeled=None):
+        all_x = torch.cat([x for x, y in minibatches])
+        all_y = torch.cat([y for x, y in minibatches])
+
+        feat = self.featurizer(all_x)
+        image_features = self.atten_pool(feat) # b, d, h, w
+        # features = features.flatten(2).permute(0, 2, 1) # bs N, d
+        image_features = image_features / image_features.norm(dim=-1, keepdim=True) # bs N, d
+        
+        with torch.no_grad():
+            text_features = self.clip_model.forward_text(self.prompt)
+            text_features /= text_features.norm(dim=-1, keepdim=True).detach()
+        
+        similarity  = self.t * image_features @ text_features.T
+        
+        lang_loss = F.cross_entropy(similarity, all_y)
+        
+        out = self.featurizer.network.avgpool(feat)
+        out = torch.flatten(out, 1)
+        out = self.dropout(out)
+        logits = self.classifier(out)
+        
+        loss = lang_loss + F.cross_entropy(logits, all_y)
+        
+        self.optimizer.zero_grad()
+        loss.backward()
+        self.optimizer.step()
+
+        return {'loss': loss.item()}
+
+    def predict(self, x):
+        feat = self.featurizer(x)
+        out = self.featurizer.network.avgpool(feat)
+        out = torch.flatten(out, 1)
+        out = self.dropout(out)
+        logits = self.classifier(out)
+        return logits
+
+class LanguageDrivenDGV3_EMA(LanguageDrivenDGV3, MovingAvg): 
+    def __init__(self, input_shape, num_classes, num_domains, hparams):
+        LanguageDrivenDGV3.__init__(self, input_shape, num_classes, num_domains, hparams)
+        MovingAvg.__init__(self, self.network)
+        
+    def update(self, minibatches, unlabeled=None):
+        return_dict = LanguageDrivenDGV3.update(self, minibatches, unlabeled)
+        self.update_sma()
+        return return_dict
+
+    def predict(self, x):
+        self.network_sma.eval()
+        
+        feat = self.network_sma["featurizer"](x)
+        out = self.network_sma["featurizer"].network.avgpool(feat)
+        out = torch.flatten(out, 1)
+        out = self.dropout(out)
+        logits = self.network_sma["classifier"](out)
+        return logits
+
