@@ -1,6 +1,8 @@
 import torch
 from torch.nn import functional as F
 from torch import nn
+import numpy as np
+
 
 from domainbed import networks
 import clip
@@ -94,17 +96,30 @@ class CLIP_FinetuneWithTextFreeze(Algorithm):
         self.featurizer = networks.CLIP(self.hparams)
         self.featurizer.eval() # turn off bn update
         
-        self.optimizer = torch.optim.Adam(
+        self.optimizer = torch.optim.AdamW(
             self.featurizer.clip_model.visual.parameters(),
             lr=self.hparams["lr"],
-            weight_decay=self.hparams['weight_decay']
+            weight_decay=self.hparams['weight_decay'],
+            betas=0.5
         )
+        self.lr_sheduler = torch.optim.lr_scheduler.CosineAnnealingLR(self.optimizer, T_max=5000, eta_min=0.0)
         self.prompt = torch.cat([clip.tokenize(f'a photo of a {cls_name}') for cls_name in hparams['class_names']]).to(self.device)
+        self.logit_scale = nn.Parameter(torch.ones([]) * np.log(1 / 0.01))
         
     def update(self, minibatches, unlabeled=None):
         all_x = torch.cat([x for x, y in minibatches])
         all_y = torch.cat([y for x, y in minibatches])
-        logits_per_image, _ = self.featurizer(all_x, self.prompt)
+        image_features = self.featurizer.forward_image(all_x)
+        text_features = self.forward_text(self.prompt)
+
+        # normalized features
+        image_features = image_features / image_features.norm(dim=1, keepdim=True)
+        text_features = text_features / text_features.norm(dim=1, keepdim=True)
+
+        # cosine similarity as logits
+        logit_scale = self.logit_scale.exp()
+        logits_per_image = logit_scale * image_features @ text_features.t()
+
         loss = F.cross_entropy(logits_per_image, all_y)
 
         self.optimizer.zero_grad()
