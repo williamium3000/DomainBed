@@ -2,7 +2,7 @@ import torch
 from torch.nn import functional as F
 from torch import nn
 import numpy as np
-
+from torch.cuda.amp import autocast, GradScaler
 
 from domainbed import networks
 import clip
@@ -105,25 +105,29 @@ class CLIP_FinetuneWithTextFreeze(Algorithm):
         self.prompt = torch.cat([clip.tokenize(f'a photo of a {cls_name}') for cls_name in hparams['class_names']]).to(self.device)
         self.logit_scale = torch.ones([]) * np.log(1 / 0.01)
         
+        self.scaler = GradScaler()
+        
     def update(self, minibatches, unlabeled=None):
         all_x = torch.cat([x for x, y in minibatches])
         all_y = torch.cat([y for x, y in minibatches])
-        image_features = self.featurizer.forward_image(all_x)
-        text_features = self.featurizer.forward_text(self.prompt)
+        with autocast():
+            image_features = self.featurizer.forward_image(all_x)
+            text_features = self.featurizer.forward_text(self.prompt)
 
-        # normalized features
-        image_features = image_features / image_features.norm(dim=1, keepdim=True)
-        text_features = text_features / text_features.norm(dim=1, keepdim=True)
+            # normalized features
+            image_features = image_features / image_features.norm(dim=1, keepdim=True)
+            text_features = text_features / text_features.norm(dim=1, keepdim=True)
 
-        # cosine similarity as logits
-        logit_scale = self.logit_scale.exp().to(self.device)
-        logits_per_image = logit_scale * image_features @ text_features.t()
+            # cosine similarity as logits
+            logit_scale = self.logit_scale.exp().to(self.device)
+            logits_per_image = logit_scale * image_features @ text_features.t()
 
-        loss = F.cross_entropy(logits_per_image, all_y)
+            loss = F.cross_entropy(logits_per_image, all_y)
 
         self.optimizer.zero_grad()
-        loss.backward()
-        self.optimizer.step()
+        self.scaler.scale(loss).backward()
+        self.scaler.step(self.optimizer)
+        self.scaler.update()
 
         return {'loss': loss.item()}
 
