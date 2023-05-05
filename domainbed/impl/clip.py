@@ -336,7 +336,12 @@ class LanguageDrivenDGV3(Algorithm):
             out_feature_clip = self.clip_model.num_features
             
         self.atten_pool = AttentionPool2d(input_shape[-1] // 32, out_feature, 32, out_feature_clip)
-        self.network = nn.Sequential(self.featurizer, self.atten_pool)
+        self.network = nn.ModuleDict(
+            {
+                        'featurizer': self.featurizer,
+                        'atten_pool': self.atten_pool,
+                        'classifier': self.classifier
+                })
         t = hparams.get("t", 1.0)
         self.t = nn.Parameter(torch.ones([]) / t, requires_grad=True)
         self.prompt = torch.cat([clip.tokenize(f'a photo of a {cls_name}') for cls_name in hparams['class_names']]).to(self.device)
@@ -351,9 +356,10 @@ class LanguageDrivenDGV3(Algorithm):
         all_x = torch.cat([x for x, y in minibatches])
         all_y = torch.cat([y for x, y in minibatches])
 
-        features = self.network(all_x) # b, d, h, w
+        feat = self.featurizer(all_x)
+        image_features = self.atten_pool(feat) # b, d, h, w
         # features = features.flatten(2).permute(0, 2, 1) # bs N, d
-        image_features = features / features.norm(dim=-1, keepdim=True) # bs N, d
+        image_features = image_features / image_features.norm(dim=-1, keepdim=True) # bs N, d
         
         with torch.no_grad():
             text_features = self.clip_model.forward_text(self.prompt)
@@ -363,13 +369,12 @@ class LanguageDrivenDGV3(Algorithm):
         
         lang_loss = F.cross_entropy(similarity, all_y)
         
-        feat = self.featurizer(all_x)
         out = self.featurizer.network.avgpool(feat)
         out = torch.flatten(out, 1)
         out = self.dropout(out)
         logits = self.classifier(out)
         
-        loss = (lang_loss + F.cross_entropy(logits, all_y)) / 2
+        loss = lang_loss + F.cross_entropy(logits, all_y)
         
         self.optimizer.zero_grad()
         loss.backward()
@@ -384,5 +389,24 @@ class LanguageDrivenDGV3(Algorithm):
         out = self.dropout(out)
         logits = self.classifier(out)
         return logits
+
+class LanguageDrivenDGV3_EMA(LanguageDrivenDGV3, MovingAvg): 
+    def __init__(self, input_shape, num_classes, num_domains, hparams):
+        LanguageDrivenDGV3.__init__(self, input_shape, num_classes, num_domains, hparams)
+        MovingAvg.__init__(self, self.network)
         
+    def update(self, minibatches, unlabeled=None):
+        return_dict = LanguageDrivenDGV3.update(self, minibatches, unlabeled)
+        self.update_sma()
+        return return_dict
+
+    def predict(self, x):
+        self.network_sma.eval()
         
+        feat = self.network_sma["featurizer"](x)
+        out = self.network_sma["featurizer"].network.avgpool(feat)
+        out = torch.flatten(out, 1)
+        out = self.dropout(out)
+        logits = self.network_sma["classifier"](out)
+        return logits
+
