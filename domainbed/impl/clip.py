@@ -99,25 +99,24 @@ class CLIP_FinetuneWithTextFreeze(Algorithm):
         self.optimizer = torch.optim.AdamW(
             self.featurizer.clip_model.visual.parameters(),
             lr=self.hparams["lr"],
-            weight_decay=self.hparams['weight_decay'],
-            betas=0.5
+            weight_decay=self.hparams['weight_decay']
         )
         self.lr_sheduler = torch.optim.lr_scheduler.CosineAnnealingLR(self.optimizer, T_max=5000, eta_min=0.0)
         self.prompt = torch.cat([clip.tokenize(f'a photo of a {cls_name}') for cls_name in hparams['class_names']]).to(self.device)
-        self.logit_scale = nn.Parameter(torch.ones([]) * np.log(1 / 0.01))
+        self.logit_scale = torch.ones([]) * np.log(1 / 0.01)
         
     def update(self, minibatches, unlabeled=None):
         all_x = torch.cat([x for x, y in minibatches])
         all_y = torch.cat([y for x, y in minibatches])
         image_features = self.featurizer.forward_image(all_x)
-        text_features = self.forward_text(self.prompt)
+        text_features = self.featurizer.forward_text(self.prompt)
 
         # normalized features
         image_features = image_features / image_features.norm(dim=1, keepdim=True)
         text_features = text_features / text_features.norm(dim=1, keepdim=True)
 
         # cosine similarity as logits
-        logit_scale = self.logit_scale.exp()
+        logit_scale = self.logit_scale.exp().to(self.device)
         logits_per_image = logit_scale * image_features @ text_features.t()
 
         loss = F.cross_entropy(logits_per_image, all_y)
@@ -131,7 +130,26 @@ class CLIP_FinetuneWithTextFreeze(Algorithm):
     def predict(self, x):
         logits_per_image, _ = self.featurizer(x, self.prompt)
         return logits_per_image.softmax(dim=-1)
+
+
+class CLIP_FinetuneWithTextFreeze_EMA(CLIP_FinetuneWithTextFreeze, MovingAvg):
+    """
+    Empirical Risk Minimization (ERM) with Simple Moving Average (SMA) prediction model
+    """
+    def __init__(self, input_shape, num_classes, num_domains, hparams):
+        CLIP_FinetuneWithTextFreeze.__init__(self, input_shape, num_classes, num_domains, hparams)
+        MovingAvg.__init__(self, self.featurizer, rho=hparams.get("ema_rho", None))
+
+    def update(self, minibatches, unlabeled=None):
+        loss_dict = CLIP_FinetuneWithTextFreeze.update(self, minibatches, unlabeled=unlabeled)
+        self.update_sma()
+        return loss_dict
     
+    def predict(self, x):
+        self.network_sma.eval()
+        logits_per_image, _ = self.network_sma(x, self.prompt)
+        return logits_per_image.softmax(dim=-1)
+
 
 class LanguageDrivenDG(Algorithm): 
     def __init__(self, input_shape, num_classes, num_domains, hparams):
