@@ -16,7 +16,7 @@ python -m domainbed.scripts.sweep delete_incomplete\
        --hparams "$(<configs/clipood_vit-b16.json)"\
        --output_dir $save_path
 srun --partition=gpuA100x4 \
-    --gres=gpu:4 \
+    --gres=gpu:2 \
     --ntasks-per-node=1 \
     --ntasks=1 \
     --job-name=sweep \

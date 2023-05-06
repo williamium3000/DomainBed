@@ -138,7 +138,7 @@ class CLIP_FinetuneWithTextFreeze(Algorithm):
 
 class CLIP_FinetuneWithTextFreezeWithDomain(Algorithm): 
     def __init__(self, input_shape, num_classes, num_domains, hparams):
-        super(CLIP_FinetuneWithTextFreeze, self).__init__(input_shape, num_classes, num_domains, hparams)
+        super(CLIP_FinetuneWithTextFreezeWithDomain, self).__init__(input_shape, num_classes, num_domains, hparams)
         self.device = 'cuda' if torch.cuda.is_available() else 'cpu'
 
         self.featurizer = networks.CLIP(self.hparams)
@@ -215,7 +215,7 @@ class CLIP_FinetuneWithTextFreezeWithDomain(Algorithm):
 
 class CLIP_FinetuneWithTextFreezeWithDomainV2(Algorithm): 
     def __init__(self, input_shape, num_classes, num_domains, hparams):
-        super(CLIP_FinetuneWithTextFreeze, self).__init__(input_shape, num_classes, num_domains, hparams)
+        super(CLIP_FinetuneWithTextFreezeWithDomainV2, self).__init__(input_shape, num_classes, num_domains, hparams)
         self.device = 'cuda' if torch.cuda.is_available() else 'cpu'
 
         self.featurizer = networks.CLIP(self.hparams)
