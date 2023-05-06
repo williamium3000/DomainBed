@@ -23,7 +23,7 @@ DATASETS = [
     "RotatedMNIST",
     # Big images
     "VLCS",
-    "VLCSWithDomain"
+    "VLCSWithDomain",
     "PACS",
     "PACSWithDomain",
     "OfficeHome",
