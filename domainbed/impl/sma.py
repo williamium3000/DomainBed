@@ -48,7 +48,7 @@ class BetaMovingAvg:
         new_dict = {}
         if self.global_iter>=self.sma_start_iter:
             self.sma_count += 1
-            alpha_0_t = np.random.beta(self.beta, self.beta, size=self.sma_count + 1) * (np.linspace(0, self.sma_count) + 0.5) / (self.total_step + 1)
+            alpha_0_t = np.random.beta(self.beta, self.beta, size=self.sma_count + 1) * (np.arange(0, self.sma_count + 1, 1) + 0.5) / (self.total_step + 1)
             curr_pho = np.sum(alpha_0_t[:-1]) / np.sum(alpha_0_t)
             for (name,param_q), (_,param_k) in zip(self.network.state_dict().items(), self.network_sma.state_dict().items()):
                 if 'num_batches_tracked' not in name:
