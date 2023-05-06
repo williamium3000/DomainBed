@@ -23,9 +23,11 @@ DATASETS = [
     "RotatedMNIST",
     # Big images
     "VLCS",
+    "VLCSWithDomain"
     "PACS",
     "PACSWithDomain",
     "OfficeHome",
+    "OfficeHomeWithDomain",
     "TerraIncognita",
     "DomainNet",
     "SVIRO",
@@ -331,6 +333,14 @@ class VLCS(MultipleEnvironmentImageFolder):
         self.dir = os.path.join(root, "VLCS/")
         super().__init__(self.dir, test_envs, hparams['data_augmentation'], hparams)
 
+class VLCSWithDomain(MultipleEnvironmentImageFolderWithDomain):
+    CHECKPOINT_FREQ = 300
+    ENVIRONMENTS = ["C", "L", "S", "V"]
+    def __init__(self, root, test_envs, hparams):
+        self.dir = os.path.join(root, "VLCS/")
+        super().__init__(self.dir, test_envs, hparams['data_augmentation'], hparams)
+
+
 class PACS(MultipleEnvironmentImageFolder):
     CHECKPOINT_FREQ = 300
     ENVIRONMENTS = ["A", "C", "P", "S"]
@@ -358,6 +368,15 @@ class OfficeHome(MultipleEnvironmentImageFolder):
     def __init__(self, root, test_envs, hparams):
         self.dir = os.path.join(root, "office_home/")
         super().__init__(self.dir, test_envs, hparams['data_augmentation'], hparams)
+
+
+class OfficeHomeWithDomain(MultipleEnvironmentImageFolderWithDomain):
+    CHECKPOINT_FREQ = 300
+    ENVIRONMENTS = ["A", "C", "P", "R"]
+    def __init__(self, root, test_envs, hparams):
+        self.dir = os.path.join(root, "office_home/")
+        super().__init__(self.dir, test_envs, hparams['data_augmentation'], hparams)
+
 
 class TerraIncognita(MultipleEnvironmentImageFolder):
     CHECKPOINT_FREQ = 300
