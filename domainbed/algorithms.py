@@ -3,7 +3,7 @@ from .impl.original import *
 from .impl.clip import CLIP, CLIP_LP, CLIP_Finetune, \
     CLIP_FinetuneWithTextFreeze, LanguageDrivenDG, LanguageDrivenDGV2, LanguageDrivenDGV2_EMA, \
         LanguageDrivenDGV3, LanguageDrivenDGV3_EMA, CLIP_FinetuneWithTextFreeze_EMA, CLIP_FinetuneWithTextFreeze_BetaEMA, \
-            CLIPood_BetaEMA, CLIPood
+            CLIPood_BetaEMA, CLIPood, CLIP_FinetuneWithTextFreezeWithDomainV2, CLIP_FinetuneWithTextFreezeWithDomain
 from .impl.w2d import W2D, W2D_v2, W2D_EMA, W2D_v2_EMA
 from .impl.clip_kd import ERM_CLIP_Logits, W2D_v2_CLIP_Logits, W2D_v2_CLIP_Logits_EMA, \
     ERM_CLIP_Logits_EMA, ERM_SMA_HardExampleMining, ERM_SMA_CLIPDistill
@@ -56,6 +56,8 @@ ALGORITHMS = [
     'CLIP_FinetuneWithTextFreeze',
     'CLIP_FinetuneWithTextFreeze_EMA',
     'CLIP_FinetuneWithTextFreeze_BetaEMA',
+    'CLIP_FinetuneWithTextFreezeWithDomainV2',
+    'CLIP_FinetuneWithTextFreezeWithDomain'
     'LanguageDrivenDG',
     'LanguageDrivenDGV2',
     'LanguageDrivenDGV2_EMA',
