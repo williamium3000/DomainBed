@@ -168,9 +168,9 @@ class CLIPood(Algorithm):
             # cosine similarity as logits
             logit_scale = self.logit_scale.exp().to(self.device)
             logits_per_image = logit_scale * image_features @ text_features.t()
-            adaptive_weights = self._lambda * logit_scale * 1 - (text_features @ text_features.t())
+            adaptive_weights = self._lambda * logit_scale * (1 - (text_features @ text_features.t()))
+            loss = F.cross_entropy(logits_per_image + adaptive_weights[all_y, :], all_y)
             
-            loss = F.cross_entropy(logits_per_image + adaptive_weights, all_y)
 
         self.optimizer.zero_grad()
         self.scaler.scale(loss).backward()

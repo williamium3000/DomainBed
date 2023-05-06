@@ -11,5 +11,5 @@ python3 -m domainbed.scripts.train \
        --test_envs 0 \
        --holdout_fraction 0.2\
        --steps 5001 \
-       --hparams "$(<configs/clip_ft_vit-b16.json)" \
+       --hparams "$(<configs/clipood_vit-b16.json)" \
        --output_dir $save_path
