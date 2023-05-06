@@ -33,7 +33,7 @@ class MovingAvg:
 
 
 class BetaMovingAvg:
-    def __init__(self, network, beta=0.3, total_step=5001):
+    def __init__(self, network, beta=0.5, total_step=5001):
         self.network = network
         self.network_sma = copy.deepcopy(network)
         self.network_sma.eval()
