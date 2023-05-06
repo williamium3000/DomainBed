@@ -247,9 +247,7 @@ class CLIP_FinetuneWithTextFreezeWithDomainV2(Algorithm):
         
         class_prompt = torch.cat([clip.tokenize(f'a photo of a {cls_name}') for cls_name in self.class_names]).to(self.device)
         domain_prompt = torch.cat([clip.tokenize(f'a photo of a {domain_name}') for domain_name in domain_names]).to(self.device)
-        
-        cls_domain_label = all_y * len(existing_domains) + new_domain_idx
-        
+         
         with autocast():
             image_features = self.featurizer.forward_image(all_x)
             # normalized features
@@ -280,6 +278,7 @@ class CLIP_FinetuneWithTextFreezeWithDomainV2(Algorithm):
         class_prompt = torch.cat([clip.tokenize(f'a photo of a {cls_name}') for cls_name in self.class_names]).to(self.device)
         logits_per_image, _ = self.featurizer(x, class_prompt)
         return logits_per_image.softmax(dim=-1)
+
 
 class CLIPood(Algorithm): 
     def __init__(self, input_shape, num_classes, num_domains, hparams):
