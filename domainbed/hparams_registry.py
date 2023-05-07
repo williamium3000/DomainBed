@@ -160,12 +160,14 @@ def _hparams(algorithm, dataset, random_seed):
     
     elif algorithm == "CLIPood" or algorithm == "CLIPood_BetaEMA" or algorithm == "CLIP_FinetuneWithTextFreeze" \
         or algorithm == "CLIP_FinetuneWithTextFreeze_BetaEMA" or algorithm == "CLIP_FinetuneWithTextFreeze_EMA" \
-            or algorithm == "CLIP_FinetuneWithTextFreezeWithDomain" or algorithm == "CLIP_FinetuneWithTextFreezeWithDomainV2":
+            or algorithm == "CLIP_FinetuneWithTextFreezeWithDomain" or algorithm == "CLIP_FinetuneWithTextFreezeWithDomainV2" \
+               or algorithm == "CLIP_FinetuneWithTextFreezeWithDomainV2_BetaEMA" or algorithm == "CLIP_FinetuneWithTextFreezeWithDomainV2_EMA" \
+                   or algorithm == "CLIP_FinetuneWithTextFreezeWithDomain_BetaEMA" or algorithm == "CLIP_FinetuneWithTextFreezeWithDomain_EMA" \
+                       or algorithm == "CLIP_FinetuneWithTextFreezeWithDomainV3":
         _hparam('lambda', 0.3, lambda r: 0.3)
         _hparam('lr', 5e-6, lambda r: 5 * (10 ** r.uniform(-4, -6)))
         _hparam('batch_size', 32, lambda r: int(2**r.uniform(3, 5)))
         _hparam('weight_decay', 0.1, lambda r: 10**r.uniform(-1, -3))
-        _hparam('lambda', 0.3, lambda r: 0.3)
         
     elif algorithm == "W2D_v2_CLIP_Logits" or algorithm == "ERM_CLIP_Logits" or algorithm == "W2D_v2_CLIP_Logits_EMA" or algorithm == "ERM_CLIP_Logits_EMA":
         _hparam('T', 3, lambda r: r.uniform(2., 5.))
@@ -173,25 +175,26 @@ def _hparams(algorithm, dataset, random_seed):
 
     # Dataset-and-algorithm-specific hparam definitions. Each block of code
     # below corresponds to exactly one hparam. Avoid nested conditionals.
-
-    if dataset in SMALL_IMAGES:
-        _hparam('lr', 1e-3, lambda r: 10**r.uniform(-4.5, -2.5))
-    else:
-        _hparam('lr', 5e-5, lambda r: 10**r.uniform(-5, -3.5))
-
-    if dataset in SMALL_IMAGES:
-        _hparam('weight_decay', 0., lambda r: 0.)
-    else:
-        _hparam('weight_decay', 0., lambda r: 10**r.uniform(-6, -2))
-
-    if dataset in SMALL_IMAGES:
-        _hparam('batch_size', 64, lambda r: int(2**r.uniform(3, 9)))
-    elif algorithm == 'ARM':
-        _hparam('batch_size', 8, lambda r: 8)
-    elif dataset == 'DomainNet':
-        _hparam('batch_size', 32, lambda r: int(2**r.uniform(3, 5)))
-    else:
-        _hparam('batch_size', 32, lambda r: int(2**r.uniform(3, 5.5)))
+    if 'lr' not in hparams:
+        if dataset in SMALL_IMAGES:
+            _hparam('lr', 1e-3, lambda r: 10**r.uniform(-4.5, -2.5))
+        else:
+            _hparam('lr', 5e-5, lambda r: 10**r.uniform(-5, -3.5))
+    
+    if 'weight_decay' not in hparams:
+        if dataset in SMALL_IMAGES:
+            _hparam('weight_decay', 0., lambda r: 0.)
+        else:
+            _hparam('weight_decay', 0., lambda r: 10**r.uniform(-6, -2))
+    if 'batch_size' not in hparams:
+        if dataset in SMALL_IMAGES:
+            _hparam('batch_size', 64, lambda r: int(2**r.uniform(3, 9)))
+        elif algorithm == 'ARM':
+            _hparam('batch_size', 8, lambda r: 8)
+        elif dataset == 'DomainNet':
+            _hparam('batch_size', 32, lambda r: int(2**r.uniform(3, 5)))
+        else:
+            _hparam('batch_size', 32, lambda r: int(2**r.uniform(3, 5.5)))
 
     if algorithm in ['DANN', 'CDANN'] and dataset in SMALL_IMAGES:
         _hparam('lr_g', 1e-3, lambda r: 10**r.uniform(-4.5, -2.5))
