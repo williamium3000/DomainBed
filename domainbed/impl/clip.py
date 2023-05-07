@@ -22,14 +22,14 @@ class CLIP(Algorithm):
         for param in self.model.parameters():
             param.requires_grad = False
 
-        self.prompt = torch.cat([clip.tokenize(f'a photo of a {cls_name}') for cls_name in hparams['class_names']]).to(self.device)
+        self.prompt = torch.cat([clip.tokenize(f'a image of a {cls_name}') for cls_name in hparams['class_names']]).to(self.device)
 
     def update(self, minibatches, unlabeled=None):
         return {'loss': 0}
 
     def predict(self, x):
         logits_per_image, _ = self.model(x, self.prompt)
-        return logits_per_image.softmax(dim=-1)
+        return logits_per_image
 
 class CLIP_LP(Algorithm): 
     def __init__(self, input_shape, num_classes, num_domains, hparams):
@@ -102,7 +102,7 @@ class CLIP_FinetuneWithTextFreeze(Algorithm):
             weight_decay=self.hparams['weight_decay']
         )
         self.lr_sheduler = torch.optim.lr_scheduler.CosineAnnealingLR(self.optimizer, T_max=5001, eta_min=0.0)
-        self.prompt = torch.cat([clip.tokenize(f'a photo of a {cls_name}') for cls_name in hparams['class_names']]).to(self.device)
+        self.prompt = torch.cat([clip.tokenize(f'a image of a {cls_name}') for cls_name in hparams['class_names']]).to(self.device)
         self.logit_scale = torch.ones([]) * np.log(1 / 0.01)
         
         self.scaler = GradScaler()
@@ -133,7 +133,7 @@ class CLIP_FinetuneWithTextFreeze(Algorithm):
 
     def predict(self, x):
         logits_per_image, _ = self.featurizer(x, self.prompt)
-        return logits_per_image.softmax(dim=-1)
+        return logits_per_image
 
 
 class CLIP_FinetuneWithTextFreezeWithDomain(Algorithm): 
@@ -154,7 +154,8 @@ class CLIP_FinetuneWithTextFreezeWithDomain(Algorithm):
         
         self.class_names = hparams['class_names']
         self.domain_names = hparams['domain_names']
-        
+        print("class name: ", self.class_names)
+        print("domain name: ", self.domain_names)
         self.scaler = GradScaler()
         
     def update(self, minibatches, unlabeled=None):
@@ -168,12 +169,12 @@ class CLIP_FinetuneWithTextFreezeWithDomain(Algorithm):
         for i, idx in enumerate(existing_domains):
             new_domain_idx[all_domain_idx == idx] = i
         
-        class_prompt = torch.cat([clip.tokenize(f'a photo of a {cls_name}') for cls_name in self.class_names]).to(self.device)
-        domain_prompt = torch.cat([clip.tokenize(f'a photo of a {domain_name}') for domain_name in domain_names]).to(self.device)
+        class_prompt = torch.cat([clip.tokenize(f'a image of a {cls_name}') for cls_name in self.class_names]).to(self.device)
+        domain_prompt = torch.cat([clip.tokenize(f'a image of a {domain_name}') for domain_name in domain_names]).to(self.device)
         domain_class_prompt = []
         for class_name in self.class_names:
             for domain_name in domain_names:
-                domain_class_prompt.append(clip.tokenize(f'a {domain_name} photo of a {class_name}'))
+                domain_class_prompt.append(clip.tokenize(f'a {domain_name} image of a {class_name}'))
         domain_class_prompt = torch.cat(domain_class_prompt).to(self.device)
         
         cls_domain_label = all_y * len(existing_domains) + new_domain_idx
@@ -209,9 +210,47 @@ class CLIP_FinetuneWithTextFreezeWithDomain(Algorithm):
         return {'loss': loss.item()}
 
     def predict(self, x):
-        class_prompt = torch.cat([clip.tokenize(f'a photo of a {cls_name}') for cls_name in self.class_names]).to(self.device)
+        class_prompt = torch.cat([clip.tokenize(f'a image of a {cls_name}') for cls_name in self.class_names]).to(self.device)
         logits_per_image, _ = self.featurizer(x, class_prompt)
-        return logits_per_image.softmax(dim=-1)
+        return logits_per_image
+
+class CLIP_FinetuneWithTextFreezeWithDomain_BetaEMA(CLIP_FinetuneWithTextFreezeWithDomain, BetaMovingAvg):
+    """
+    Empirical Risk Minimization (ERM) with Simple Moving Average (SMA) prediction model
+    """
+    def __init__(self, input_shape, num_classes, num_domains, hparams):
+        CLIP_FinetuneWithTextFreezeWithDomain.__init__(self, input_shape, num_classes, num_domains, hparams)
+        BetaMovingAvg.__init__(self, self.featurizer)
+
+    def update(self, minibatches, unlabeled=None):
+        loss_dict = CLIP_FinetuneWithTextFreezeWithDomain.update(self, minibatches, unlabeled=unlabeled)
+        self.update_sma()
+        return loss_dict
+    
+    def predict(self, x):
+        self.network_sma.eval()
+        class_prompt = torch.cat([clip.tokenize(f'a image of a {cls_name}') for cls_name in self.class_names]).to(self.device)
+        logits_per_image, _ = self.network_sma(x, class_prompt)
+        return logits_per_image
+
+class CLIP_FinetuneWithTextFreezeWithDomain_EMA(CLIP_FinetuneWithTextFreezeWithDomain, MovingAvg):
+    """
+    Empirical Risk Minimization (ERM) with Simple Moving Average (SMA) prediction model
+    """
+    def __init__(self, input_shape, num_classes, num_domains, hparams):
+        CLIP_FinetuneWithTextFreezeWithDomain.__init__(self, input_shape, num_classes, num_domains, hparams)
+        MovingAvg.__init__(self, self.featurizer)
+
+    def update(self, minibatches, unlabeled=None):
+        loss_dict = CLIP_FinetuneWithTextFreezeWithDomain.update(self, minibatches, unlabeled=unlabeled)
+        self.update_sma()
+        return loss_dict
+    
+    def predict(self, x):
+        self.network_sma.eval()
+        class_prompt = torch.cat([clip.tokenize(f'a image of a {cls_name}') for cls_name in self.class_names]).to(self.device)
+        logits_per_image, _ = self.network_sma(x, class_prompt)
+        return logits_per_image
 
 class CLIP_FinetuneWithTextFreezeWithDomainV2(Algorithm): 
     def __init__(self, input_shape, num_classes, num_domains, hparams):
@@ -231,6 +270,8 @@ class CLIP_FinetuneWithTextFreezeWithDomainV2(Algorithm):
         
         self.class_names = hparams['class_names']
         self.domain_names = hparams['domain_names']
+        print("class name: ", self.class_names)
+        print("domain name: ", self.domain_names)
         
         self.scaler = GradScaler()
         
@@ -245,8 +286,8 @@ class CLIP_FinetuneWithTextFreezeWithDomainV2(Algorithm):
         for i, idx in enumerate(existing_domains):
             new_domain_idx[all_domain_idx == idx] = i
         
-        class_prompt = torch.cat([clip.tokenize(f'a photo of a {cls_name}') for cls_name in self.class_names]).to(self.device)
-        domain_prompt = torch.cat([clip.tokenize(f'a photo of a {domain_name}') for domain_name in domain_names]).to(self.device)
+        class_prompt = torch.cat([clip.tokenize(f'a image of a {cls_name}') for cls_name in self.class_names]).to(self.device)
+        domain_prompt = torch.cat([clip.tokenize(f'a image of a {domain_name}') for domain_name in domain_names]).to(self.device)
          
         with autocast():
             image_features = self.featurizer.forward_image(all_x)
@@ -275,9 +316,47 @@ class CLIP_FinetuneWithTextFreezeWithDomainV2(Algorithm):
         return {'loss': loss.item()}
 
     def predict(self, x):
-        class_prompt = torch.cat([clip.tokenize(f'a photo of a {cls_name}') for cls_name in self.class_names]).to(self.device)
+        class_prompt = torch.cat([clip.tokenize(f'a image of a {cls_name}') for cls_name in self.class_names]).to(self.device)
         logits_per_image, _ = self.featurizer(x, class_prompt)
-        return logits_per_image.softmax(dim=-1)
+        return logits_per_image
+
+class CLIP_FinetuneWithTextFreezeWithDomainV2_BetaEMA(CLIP_FinetuneWithTextFreezeWithDomainV2, BetaMovingAvg):
+    """
+    Empirical Risk Minimization (ERM) with Simple Moving Average (SMA) prediction model
+    """
+    def __init__(self, input_shape, num_classes, num_domains, hparams):
+        CLIP_FinetuneWithTextFreezeWithDomainV2.__init__(self, input_shape, num_classes, num_domains, hparams)
+        BetaMovingAvg.__init__(self, self.featurizer)
+
+    def update(self, minibatches, unlabeled=None):
+        loss_dict = CLIP_FinetuneWithTextFreezeWithDomainV2.update(self, minibatches, unlabeled=unlabeled)
+        self.update_sma()
+        return loss_dict
+    
+    def predict(self, x):
+        self.network_sma.eval()
+        class_prompt = torch.cat([clip.tokenize(f'a image of a {cls_name}') for cls_name in self.class_names]).to(self.device)
+        logits_per_image, _ = self.network_sma(x, class_prompt)
+        return logits_per_image
+
+class CLIP_FinetuneWithTextFreezeWithDomainV2_EMA(CLIP_FinetuneWithTextFreezeWithDomainV2, MovingAvg):
+    """
+    Empirical Risk Minimization (ERM) with Simple Moving Average (SMA) prediction model
+    """
+    def __init__(self, input_shape, num_classes, num_domains, hparams):
+        CLIP_FinetuneWithTextFreezeWithDomainV2.__init__(self, input_shape, num_classes, num_domains, hparams)
+        MovingAvg.__init__(self, self.featurizer)
+
+    def update(self, minibatches, unlabeled=None):
+        loss_dict = CLIP_FinetuneWithTextFreezeWithDomainV2.update(self, minibatches, unlabeled=unlabeled)
+        self.update_sma()
+        return loss_dict
+    
+    def predict(self, x):
+        self.network_sma.eval()
+        class_prompt = torch.cat([clip.tokenize(f'a image of a {cls_name}') for cls_name in self.class_names]).to(self.device)
+        logits_per_image, _ = self.network_sma(x, class_prompt)
+        return logits_per_image
 
 
 class CLIPood(Algorithm): 
@@ -294,7 +373,7 @@ class CLIPood(Algorithm):
             weight_decay=self.hparams['weight_decay']
         )
         self.lr_sheduler = torch.optim.lr_scheduler.CosineAnnealingLR(self.optimizer, T_max=5000, eta_min=0.0)
-        self.prompt = torch.cat([clip.tokenize(f'a photo of a {cls_name}') for cls_name in hparams['class_names']]).to(self.device)
+        self.prompt = torch.cat([clip.tokenize(f'a image of a {cls_name}') for cls_name in hparams['class_names']]).to(self.device)
         self.logit_scale = torch.ones([]) * np.log(1 / 0.01)
         self._lambda = hparams["lambda"]
         self.scaler = GradScaler()
@@ -326,7 +405,7 @@ class CLIPood(Algorithm):
 
     def predict(self, x):
         logits_per_image, _ = self.featurizer(x, self.prompt)
-        return logits_per_image.softmax(dim=-1)
+        return logits_per_image
 
 class CLIP_FinetuneWithTextFreeze_EMA(CLIP_FinetuneWithTextFreeze, MovingAvg):
     """
@@ -344,7 +423,7 @@ class CLIP_FinetuneWithTextFreeze_EMA(CLIP_FinetuneWithTextFreeze, MovingAvg):
     def predict(self, x):
         self.network_sma.eval()
         logits_per_image, _ = self.network_sma(x, self.prompt)
-        return logits_per_image.softmax(dim=-1)
+        return logits_per_image
 
 class CLIP_FinetuneWithTextFreeze_BetaEMA(CLIP_FinetuneWithTextFreeze, BetaMovingAvg):
     """
@@ -362,7 +441,7 @@ class CLIP_FinetuneWithTextFreeze_BetaEMA(CLIP_FinetuneWithTextFreeze, BetaMovin
     def predict(self, x):
         self.network_sma.eval()
         logits_per_image, _ = self.network_sma(x, self.prompt)
-        return logits_per_image.softmax(dim=-1)
+        return logits_per_image
 
 class CLIPood_BetaEMA(CLIPood, BetaMovingAvg):
     """
@@ -380,7 +459,7 @@ class CLIPood_BetaEMA(CLIPood, BetaMovingAvg):
     def predict(self, x):
         self.network_sma.eval()
         logits_per_image, _ = self.network_sma(x, self.prompt)
-        return logits_per_image.softmax(dim=-1)
+        return logits_per_image
 
 class LanguageDrivenDG(Algorithm): 
     def __init__(self, input_shape, num_classes, num_domains, hparams):
@@ -409,7 +488,7 @@ class LanguageDrivenDG(Algorithm):
         
         t = hparams.get("t", 1.0)
         self.t = nn.Parameter(torch.ones([]) / t, requires_grad=True)
-        self.prompt = torch.cat([clip.tokenize(f'a photo of a {cls_name}') for cls_name in hparams['class_names']]).to(self.device)
+        self.prompt = torch.cat([clip.tokenize(f'a image of a {cls_name}') for cls_name in hparams['class_names']]).to(self.device)
         
         self.optimizer = torch.optim.Adam(
             list(self.network.parameters()) + [self.t.data, ],
@@ -495,12 +574,12 @@ class LanguageDrivenDGV2(Algorithm):
         for i, idx in enumerate(existing_domains):
             new_domain_idx[all_domain_idx == idx] = i
         
-        class_prompt = torch.cat([clip.tokenize(f'a photo of a {cls_name}') for cls_name in self.class_names]).to(self.device)
-        domain_prompt = torch.cat([clip.tokenize(f'a photo of a {domain_name}') for domain_name in domain_names]).to(self.device)
+        class_prompt = torch.cat([clip.tokenize(f'a image of a {cls_name}') for cls_name in self.class_names]).to(self.device)
+        domain_prompt = torch.cat([clip.tokenize(f'a image of a {domain_name}') for domain_name in domain_names]).to(self.device)
         domain_class_prompt = []
         for class_name in self.class_names:
             for domain_name in domain_names:
-                domain_class_prompt.append(clip.tokenize(f'a {domain_name} photo of a {class_name}'))
+                domain_class_prompt.append(clip.tokenize(f'a {domain_name} image of a {class_name}'))
         domain_class_prompt = torch.cat(domain_class_prompt).to(self.device)
         
         cls_domain_label = all_y * len(existing_domains) + new_domain_idx
@@ -533,7 +612,7 @@ class LanguageDrivenDGV2(Algorithm):
         return {'loss': loss.item()}
 
     def predict(self, x):
-        prompt = torch.cat([clip.tokenize(f'a photo of a {cls_name}') for cls_name in self.class_names]).to(self.device)
+        prompt = torch.cat([clip.tokenize(f'a image of a {cls_name}') for cls_name in self.class_names]).to(self.device)
         
         features = self.network(x)# b, d, h, w
         # features = features.flatten(2).permute(0, 2, 1) # bs N, d
@@ -559,7 +638,7 @@ class LanguageDrivenDGV2_EMA(LanguageDrivenDGV2, MovingAvg):
     def predict(self, x):
         self.network_sma.eval()
         
-        prompt = torch.cat([clip.tokenize(f'a photo of a {cls_name}') for cls_name in self.class_names]).to(self.device)
+        prompt = torch.cat([clip.tokenize(f'a image of a {cls_name}') for cls_name in self.class_names]).to(self.device)
         
         features = self.network_sma(x) # b, d, h, w
         # features = features.flatten(2).permute(0, 2, 1) # bs N, d
@@ -605,7 +684,7 @@ class LanguageDrivenDGV3(Algorithm):
                 })
         t = hparams.get("t", 1.0)
         self.t = nn.Parameter(torch.ones([]) / t, requires_grad=True)
-        self.prompt = torch.cat([clip.tokenize(f'a photo of a {cls_name}') for cls_name in hparams['class_names']]).to(self.device)
+        self.prompt = torch.cat([clip.tokenize(f'a image of a {cls_name}') for cls_name in hparams['class_names']]).to(self.device)
         
         self.optimizer = torch.optim.Adam(
             list(self.network.parameters()) + [self.t.data, ] + list(self.classifier.parameters()),
