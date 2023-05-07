@@ -1,11 +1,13 @@
 # Copyright (c) Facebook, Inc. and its affiliates. All Rights Reserved
 from .impl.original import *
-from .impl.clip import CLIP, CLIP_LP, CLIP_Finetune, \
-    CLIP_FinetuneWithTextFreeze, LanguageDrivenDG, LanguageDrivenDGV2, LanguageDrivenDGV2_EMA, \
-        LanguageDrivenDGV3, LanguageDrivenDGV3_EMA, CLIP_FinetuneWithTextFreeze_EMA, CLIP_FinetuneWithTextFreeze_BetaEMA, \
-            CLIPood_BetaEMA, CLIPood, CLIP_FinetuneWithTextFreezeWithDomainV2, CLIP_FinetuneWithTextFreezeWithDomain, \
-                CLIP_FinetuneWithTextFreezeWithDomainV2_BetaEMA, CLIP_FinetuneWithTextFreezeWithDomainV2_EMA, \
-                CLIP_FinetuneWithTextFreezeWithDomain_BetaEMA, CLIP_FinetuneWithTextFreezeWithDomain_EMA
+from .impl.clip import CLIP, CLIP_LP, CLIP_Finetune
+
+from .impl.clipood import CLIP_FinetuneWithTextFreeze, CLIP_FinetuneWithTextFreeze_EMA, CLIP_FinetuneWithTextFreeze_BetaEMA, CLIPood_BetaEMA
+from .impl.language_driven import LanguageDrivenDG, LanguageDrivenDGV2, LanguageDrivenDGV2_EMA, LanguageDrivenDGV3, LanguageDrivenDGV3_EMA
+from .impl.language_driven_ft import CLIP_FinetuneWithTextFreezeWithDomain, CLIP_FinetuneWithTextFreezeWithDomain_BetaEMA, \
+    CLIP_FinetuneWithTextFreezeWithDomain_EMA, CLIP_FinetuneWithTextFreezeWithDomainV2, CLIP_FinetuneWithTextFreezeWithDomainV2_BetaEMA, \
+        CLIP_FinetuneWithTextFreezeWithDomainV2_EMA, CLIP_FinetuneWithTextFreezeWithDomainV3
+
 from .impl.w2d import W2D, W2D_v2, W2D_EMA, W2D_v2_EMA
 from .impl.clip_kd import ERM_CLIP_Logits, W2D_v2_CLIP_Logits, W2D_v2_CLIP_Logits_EMA, \
     ERM_CLIP_Logits_EMA, ERM_SMA_HardExampleMining, ERM_SMA_CLIPDistill
@@ -70,6 +72,7 @@ ALGORITHMS = [
     'LanguageDrivenDGV3',
     'LanguageDrivenDGV3_EMA',
     'CLIPood_BetaEMA',
+    'CLIP_FinetuneWithTextFreezeWithDomainV3',
     'CLIPood'
 ]
 
