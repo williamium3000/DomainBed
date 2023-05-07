@@ -38,35 +38,36 @@ class CLIP_FinetuneWithTextFreezeWithDomain(Algorithm):
         all_y = torch.cat([y for x, y, domain_idx in minibatches])
         all_domain_idx = torch.cat([domain_idx for x, y, domain_idx in minibatches])
         
-        existing_domains = torch.unique(all_domain_idx)
-        domain_names = [self.domain_names[i] for i in existing_domains]
-        new_domain_idx = all_domain_idx.clone()
-        for i, idx in enumerate(existing_domains):
-            new_domain_idx[all_domain_idx == idx] = i
-        
-        class_prompt = torch.cat([clip.tokenize(f'a image of a {cls_name}') for cls_name in self.class_names]).to(self.device)
-        domain_prompt = torch.cat([clip.tokenize(f'a image of a {domain_name}') for domain_name in domain_names]).to(self.device)
-        domain_class_prompt = []
-        for class_name in self.class_names:
-            for domain_name in domain_names:
-                domain_class_prompt.append(clip.tokenize(f'a {domain_name} image of a {class_name}'))
-        domain_class_prompt = torch.cat(domain_class_prompt).to(self.device)
-        
-        cls_domain_label = all_y * len(existing_domains) + new_domain_idx
-        
         with autocast():
+            existing_domains = torch.unique(all_domain_idx)
+            domain_names = [self.domain_names[i] for i in existing_domains]
+            new_domain_idx = all_domain_idx.clone()
+            for i, idx in enumerate(existing_domains):
+                new_domain_idx[all_domain_idx == idx] = i
+            
+            class_prompt = torch.cat([clip.tokenize(f'a image of a {cls_name}') for cls_name in self.class_names]).to(self.device)
+            domain_prompt = torch.cat([clip.tokenize(f'a image of a {domain_name}') for domain_name in domain_names]).to(self.device)
+            domain_class_prompt = []
+            for class_name in self.class_names:
+                for domain_name in domain_names:
+                    domain_class_prompt.append(clip.tokenize(f'a {domain_name} image of a {class_name}'))
+            domain_class_prompt = torch.cat(domain_class_prompt).to(self.device)
+            
+            cls_domain_label = all_y * len(existing_domains) + new_domain_idx
+            
             image_features = self.featurizer.forward_image(all_x)
             # normalized features
             image_features = image_features / image_features.norm(dim=1, keepdim=True)
             
-            class_text_features = self.featurizer.forward_text(class_prompt)
-            class_text_features /= class_text_features.norm(dim=-1, keepdim=True).detach()
-            
-            domain_text_features = self.featurizer.forward_text(domain_prompt)
-            domain_text_features /= domain_text_features.norm(dim=-1, keepdim=True).detach()
-            
-            domain_class_text_features = self.featurizer.forward_text(domain_class_prompt)
-            domain_class_text_features /= domain_class_text_features.norm(dim=-1, keepdim=True).detach()
+            with torch.no_grad():
+                class_text_features = self.featurizer.forward_text(class_prompt)
+                class_text_features /= class_text_features.norm(dim=-1, keepdim=True).detach()
+                
+                domain_text_features = self.featurizer.forward_text(domain_prompt)
+                domain_text_features /= domain_text_features.norm(dim=-1, keepdim=True).detach()
+                
+                domain_class_text_features = self.featurizer.forward_text(domain_class_prompt)
+                domain_class_text_features /= domain_class_text_features.norm(dim=-1, keepdim=True).detach()
 
             # cosine similarity as logits
             logit_scale = self.logit_scale.exp().to(self.device)
@@ -155,25 +156,28 @@ class CLIP_FinetuneWithTextFreezeWithDomainV2(Algorithm):
         all_y = torch.cat([y for x, y, domain_idx in minibatches])
         all_domain_idx = torch.cat([domain_idx for x, y, domain_idx in minibatches])
         
-        existing_domains = torch.unique(all_domain_idx)
-        domain_names = [self.domain_names[i] for i in existing_domains]
-        new_domain_idx = all_domain_idx.clone()
-        for i, idx in enumerate(existing_domains):
-            new_domain_idx[all_domain_idx == idx] = i
-        
-        class_prompt = torch.cat([clip.tokenize(f'a image of a {cls_name}') for cls_name in self.class_names]).to(self.device)
-        domain_prompt = torch.cat([clip.tokenize(f'a image of a {domain_name}') for domain_name in domain_names]).to(self.device)
+    
          
         with autocast():
+            existing_domains = torch.unique(all_domain_idx)
+            domain_names = [self.domain_names[i] for i in existing_domains]
+            new_domain_idx = all_domain_idx.clone()
+            for i, idx in enumerate(existing_domains):
+                new_domain_idx[all_domain_idx == idx] = i
+            
+            class_prompt = torch.cat([clip.tokenize(f'a image of a {cls_name}') for cls_name in self.class_names]).to(self.device)
+            domain_prompt = torch.cat([clip.tokenize(f'a image of a {domain_name}') for domain_name in domain_names]).to(self.device)
+            
             image_features = self.featurizer.forward_image(all_x)
             # normalized features
             image_features = image_features / image_features.norm(dim=1, keepdim=True)
             
-            class_text_features = self.featurizer.forward_text(class_prompt)
-            class_text_features /= class_text_features.norm(dim=-1, keepdim=True).detach()
-            
-            domain_text_features = self.featurizer.forward_text(domain_prompt)
-            domain_text_features /= domain_text_features.norm(dim=-1, keepdim=True).detach()
+            with torch.no_grad():
+                class_text_features = self.featurizer.forward_text(class_prompt)
+                class_text_features /= class_text_features.norm(dim=-1, keepdim=True).detach()
+                
+                domain_text_features = self.featurizer.forward_text(domain_prompt)
+                domain_text_features /= domain_text_features.norm(dim=-1, keepdim=True).detach()
             
             # cosine similarity as logits
             logit_scale = self.logit_scale.exp().to(self.device)
@@ -261,35 +265,37 @@ class CLIP_FinetuneWithTextFreezeWithDomainV3(Algorithm):
         all_y = torch.cat([y for x, y, domain_idx in minibatches])
         all_domain_idx = torch.cat([domain_idx for x, y, domain_idx in minibatches])
         
-        existing_domains = torch.unique(all_domain_idx)
-        domain_names = [self.domain_names[i] for i in existing_domains]
-        new_domain_idx = all_domain_idx.clone()
-        for i, idx in enumerate(existing_domains):
-            new_domain_idx[all_domain_idx == idx] = i
-
-        class_prompt = torch.cat([clip.tokenize(f'a image of a {cls_name}') for cls_name in self.class_names]).to(self.device)
-        domain_prompt = torch.cat([clip.tokenize(f'a image of a {domain_name}') for domain_name in domain_names]).to(self.device)
-        
-        domain_class_prompt = []
-        for i in range(all_x.size(0)):
-            domain_class_prompt.append(
-                torch.cat([clip.tokenize(f'a {self.domain_names[all_domain_idx[i]]} image of a {cls_name}') for cls_name in self.class_names]).to(self.device)
-            )
-        domain_class_prompt = torch.stack(domain_class_prompt, dim=0)
         
         with autocast():
+            existing_domains = torch.unique(all_domain_idx)
+            domain_names = [self.domain_names[i] for i in existing_domains]
+            new_domain_idx = all_domain_idx.clone()
+            for i, idx in enumerate(existing_domains):
+                new_domain_idx[all_domain_idx == idx] = i
+
+            class_prompt = torch.cat([clip.tokenize(f'a image of a {cls_name}') for cls_name in self.class_names]).to(self.device)
+            domain_prompt = torch.cat([clip.tokenize(f'a image of a {domain_name}') for domain_name in domain_names]).to(self.device)
+            
+            domain_class_prompt = []
+            for i in range(all_x.size(0)):
+                domain_class_prompt.append(
+                    torch.cat([clip.tokenize(f'a {self.domain_names[all_domain_idx[i]]} image of a {cls_name}') for cls_name in self.class_names]).to(self.device)
+                )
+            domain_class_prompt = torch.stack(domain_class_prompt, dim=0)
+            
             image_features = self.featurizer.forward_image(all_x)
             # normalized features
             image_features = image_features / image_features.norm(dim=1, keepdim=True)
             
-            class_text_features = self.featurizer.forward_text(class_prompt)
-            class_text_features /= class_text_features.norm(dim=-1, keepdim=True).detach()
-            
-            domain_text_features = self.featurizer.forward_text(domain_prompt)
-            domain_text_features /= domain_text_features.norm(dim=-1, keepdim=True).detach()
-            
-            domain_class_text_features = self.featurizer.forward_text(domain_class_prompt)
-            domain_class_text_features /= domain_class_text_features.norm(dim=-1, keepdim=True).detach()
+            with torch.no_grad():
+                class_text_features = self.featurizer.forward_text(class_prompt)
+                class_text_features /= class_text_features.norm(dim=-1, keepdim=True).detach()
+                
+                domain_text_features = self.featurizer.forward_text(domain_prompt)
+                domain_text_features /= domain_text_features.norm(dim=-1, keepdim=True).detach()
+                
+                domain_class_text_features = self.featurizer.forward_text(domain_class_prompt)
+                domain_class_text_features /= domain_class_text_features.norm(dim=-1, keepdim=True).detach()
 
             # cosine similarity as logits
             logit_scale = self.logit_scale.exp().to(self.device)

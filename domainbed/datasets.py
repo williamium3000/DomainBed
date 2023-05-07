@@ -376,6 +376,7 @@ class OfficeHomeWithDomain(MultipleEnvironmentImageFolderWithDomain):
     def __init__(self, root, test_envs, hparams):
         self.dir = os.path.join(root, "office_home/")
         super().__init__(self.dir, test_envs, hparams['data_augmentation'], hparams)
+        hparams['domain_names'] = ['art', 'clip art', 'product', 'real world']
 
 
 class TerraIncognita(MultipleEnvironmentImageFolder):
