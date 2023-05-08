@@ -221,7 +221,7 @@ class CLIP_FinetuneWithTextFreezeWithDomainV2_NovelDomain(Algorithm):
         self.domain_names = hparams['domain_names']
         
         # temp domain_names
-        self.novel_domains = hparams['domain_names']
+        self.novel_domains = hparams['novel_domains'] + hparams['domain_names']
         print("class name: ", self.class_names)
         print("domain name: ", self.domain_names)
         

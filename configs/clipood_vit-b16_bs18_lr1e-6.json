@@ -2,5 +2,6 @@
     "clip_model": "ViT-B/16",
     "weight_decay": 0.1,
     "lr": 1e-6,
-    "batch_size": 18
+    "batch_size": 18,
+    "novel_domains": ["Pixel art", "Anime/manga", "Comic book", "Sketch", "Cartoon", "Graffiti", "Street art", "Minimalism", "Pop art", "Abstract", "Surrealism", "Expressionism", "Impressionism", "Art deco", "Retro", "Vintage", "Futuristic", "Cyberpunk", "Steampunk", "Gothic", "Horror", "Fantasy", "Sci-fi", "Nature", "Wildlife", "Underwater", "Outer space", "Industrial", "Architectural", "Fashion", "Geometric", "Neon", "Collage", "Photorealistic", "Digital", "Line art", "Watercolor", "Charcoal", "Pen and ink", "Chalk and pastel", "Pointillism", "Mosaic", "Stained glass", "Origami", "Clay", "Woodcarving", "Metalwork", "Calligraphy", "Embroidery", "Quilting"]
 }
