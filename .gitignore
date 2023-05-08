@@ -5,3 +5,4 @@ domainbed/data/*
 work_dirs
 slurm_logs
 work_dirs_wo_ckpt
+.DS_Store
