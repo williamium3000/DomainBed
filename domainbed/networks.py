@@ -10,6 +10,7 @@ import copy
 
 from timm import create_model
 from clip import clip
+from .backbone import dsu
 
 def remove_batch_norm_from_resnet(model):
     fuse = torch.nn.utils.fusion.fuse_conv_bn_eval
@@ -67,6 +68,53 @@ class MLP(nn.Module):
         x = self.output(x)
         return x
 
+
+class UResNet(torch.nn.Module):
+    """ResNet with the softmax chopped off and the batchnorm frozen"""
+    def __init__(self, input_shape, hparams):
+        super(UResNet, self).__init__()
+        self.return_feature = hparams.get("return_feature", False)
+        checkpoint_path = hparams.get("checkpoint_path", None)
+        if checkpoint_path is None:
+            pretrained = True
+        else:
+            pretrained = False
+            
+        if hparams['model_name'] == "resnet18":
+            self.network = dsu.uresnet18(pretrained=pretrained)
+            self.n_outputs = 512
+        else:
+            self.network = dsu.uresnet50(pretrained=pretrained)
+            self.n_outputs = 2048
+        if checkpoint_path is not None:
+            self.network.load_state_dict(torch.load(checkpoint_path, map_location="cpu"))
+            
+        # self.network = remove_batch_norm_from_resnet(self.network)
+
+        # adapt number of channels
+        nc = input_shape[0]
+        if nc != 3:
+            tmp = self.network.conv1.weight.data.clone()
+
+            self.network.conv1 = nn.Conv2d(
+                nc, 64, kernel_size=(7, 7),
+                stride=(2, 2), padding=(3, 3), bias=False)
+
+            for i in range(nc):
+                self.network.conv1.weight.data[:, i, :, :] = tmp[:, i % 3, :, :]
+
+        # save memory
+        del self.network.fc
+        self.network.fc = Identity()
+        
+        self.hparams = hparams
+        self.dropout = nn.Dropout(hparams['resnet_dropout'])
+    
+    
+    def forward(self, x):
+        """Encode x into a feature vector of size n_outputs."""
+        out = self.network(x)
+        return self.dropout(out)
 
 class ResNet(torch.nn.Module):
     """ResNet with the softmax chopped off and the batchnorm frozen"""
@@ -142,6 +190,7 @@ class ResNet(torch.nn.Module):
         for m in self.network.modules():
             if isinstance(m, nn.BatchNorm2d):
                 m.eval()
+
 
 class ViT(torch.nn.Module):
     """ResNet with the softmax chopped off and the batchnorm frozen"""
@@ -241,6 +290,8 @@ def Featurizer(input_shape, hparams):
             return ResNet(input_shape, hparams)
         elif hparams["model"] == "vit":
             return ViT(input_shape[0], hparams)
+        elif hparams["model"] == "uresnet":
+            return UResNet(input_shape, hparams)
     else:
         raise NotImplementedError
 
