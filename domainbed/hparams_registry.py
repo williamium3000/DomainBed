@@ -163,7 +163,8 @@ def _hparams(algorithm, dataset, random_seed):
             or algorithm == "CLIP_FinetuneWithTextFreezeWithDomain" or algorithm == "CLIP_FinetuneWithTextFreezeWithDomainV2" \
                or algorithm == "CLIP_FinetuneWithTextFreezeWithDomainV2_BetaEMA" or algorithm == "CLIP_FinetuneWithTextFreezeWithDomainV2_EMA" \
                    or algorithm == "CLIP_FinetuneWithTextFreezeWithDomain_BetaEMA" or algorithm == "CLIP_FinetuneWithTextFreezeWithDomain_EMA" \
-                       or algorithm == "CLIP_FinetuneWithTextFreezeWithDomainV3" or algorithm == "CLIP_FinetuneWithTextFreezeWithDomainV2_NovelDomain":
+                       or algorithm == "CLIP_FinetuneWithTextFreezeWithDomainV3" or algorithm == "CLIP_FinetuneWithTextFreezeWithDomainV2_NovelDomain" \
+                           or algorithm == "CLIP_FinetuneWithTextFreezeWithDomainV2_NovelDomainV2":
         _hparam('lambda', 0.3, lambda r: 0.3)
         _hparam('lr', 5e-6, lambda r: 5 * (10 ** r.uniform(-4, -6)))
         _hparam('batch_size', 32, lambda r: int(2**r.uniform(3, 5)))
