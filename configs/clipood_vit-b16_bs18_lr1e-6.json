@@ -1,0 +1,6 @@
+{
+    "clip_model": "ViT-B/16",
+    "weight_decay": 0.1,
+    "lr": 1e-6,
+    "batch_size": 18
+}

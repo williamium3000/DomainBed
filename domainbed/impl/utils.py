@@ -15,7 +15,7 @@ class CascadeGaussianSmoothing(nn.Module):
     """
     def __init__(self, kernel_size, sigma):
         super().__init__()
-
+        device = 'cuda' if torch.cuda.is_available() else 'cpu'
         if isinstance(kernel_size, int):
             kernel_size = [kernel_size, kernel_size]
 
@@ -69,12 +69,15 @@ UPPER_IMAGE_BOUND = torch.tensor(((1 - IMAGENET_MEAN_1) / IMAGENET_STD_1).reshap
 
 
 def generate_novel_domain_perturbation(model, image_tensor, class_text_features, domain_text_features, class_label, domain_label, lr, total_iteration, smoothing_coefficient, smooth, normalize):
+    model.eval()
+    device = 'cuda' if torch.cuda.is_available() else 'cpu'
+    image_tensor.requires_grad = True
     for curr_iteration in range(total_iteration):
         # Step 0: Feed forward pass
-        image_features = model.encode_image(image_tensor)
+        image_features = model.forward_image(image_tensor)
         
         loss = -torch.log((image_features @ class_text_features.T)[torch.arange(image_features.size(0)), class_label]) - torch.log((image_features @ domain_text_features.T)[torch.arange(image_features.size(0)), domain_label])
-
+        loss = loss.sum()
         loss.backward()
 
         # Step 3: Process image gradients (smoothing + normalization, more an art then a science)
@@ -99,5 +102,7 @@ def generate_novel_domain_perturbation(model, image_tensor, class_text_features,
 
         # Step 5: Clear gradients and clamp the data (otherwise values would explode to +- "infinity")
         image_tensor.grad.data.zero_()
-        image_tensor.data = torch.max(torch.min(image_tensor, UPPER_IMAGE_BOUND), LOWER_IMAGE_BOUND)
-    return image_tensor
+        image_tensor.data = torch.max(torch.min(image_tensor, UPPER_IMAGE_BOUND.to(device)), LOWER_IMAGE_BOUND.to(device))
+    
+    model.train()
+    return image_tensor.detach()

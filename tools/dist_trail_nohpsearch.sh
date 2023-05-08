@@ -13,9 +13,9 @@ python -m domainbed.scripts.sweep delete_incomplete\
        --n_hparams 1\
        --n_trials 3\
        --skip_confirmation\
-       --hparams "$(<configs/clipood_vit-b16.json)"\
+       --hparams "$(<configs/clipood_vit-b16_bs18_lr1e-6.json)"\
        --output_dir $save_path
-CUDA_VISIBLE_DEVICES=0,1 python -m domainbed.scripts.sweep launch\
+CUDA_VISIBLE_DEVICES=4,5 python -m domainbed.scripts.sweep launch\
        --datasets ${dataset}\
        --algorithms $algorithms \
        --data_dir ./domainbed/data\
@@ -26,5 +26,5 @@ CUDA_VISIBLE_DEVICES=0,1 python -m domainbed.scripts.sweep launch\
        --n_hparams 1\
        --n_trials 3\
        --skip_confirmation\
-       --hparams "$(<configs/clipood_vit-b16.json)"\
+       --hparams "$(<configs/clipood_vit-b16_bs18_lr1e-6.json)"\
        --output_dir $save_path
