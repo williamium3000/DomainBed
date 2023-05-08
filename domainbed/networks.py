@@ -113,8 +113,14 @@ class UResNet(torch.nn.Module):
     
     def forward(self, x):
         """Encode x into a feature vector of size n_outputs."""
-        out = self.network(x)
-        return self.dropout(out)
+        feat = self.network.featuremaps(x)
+        f = self.network.avgpool(f)
+        f = torch.flatten(f, 1)
+        out = self.network.fc(f)
+        if self.return_feature:
+            return feat, self.dropout(out)
+        else:
+            return self.dropout(out)
 
 class ResNet(torch.nn.Module):
     """ResNet with the softmax chopped off and the batchnorm frozen"""
@@ -175,7 +181,7 @@ class ResNet(torch.nn.Module):
         out = torch.flatten(out, 1)
         
         if self.return_feature:
-            return feat
+            return feat, self.dropout(out)
         else:
             return self.dropout(out)
 

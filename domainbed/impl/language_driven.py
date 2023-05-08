@@ -50,6 +50,8 @@ class LanguageDrivenDG(Algorithm):
         all_x = torch.cat([x for x, y in minibatches])
         all_y = torch.cat([y for x, y in minibatches])
 
+        self.clip_model.eval()
+        
         features = self.network(all_x) # b, d, h, w
         # features = features.flatten(2).permute(0, 2, 1) # bs N, d
         image_features = features / features.norm(dim=-1, keepdim=True) # bs N, d
@@ -117,6 +119,8 @@ class LanguageDrivenDGV2(Algorithm):
         all_x = torch.cat([x for x, y, domain_idx in minibatches])
         all_y = torch.cat([y for x, y, domain_idx in minibatches])
         all_domain_idx = torch.cat([domain_idx for x, y, domain_idx in minibatches])
+        
+        self.clip_model.eval()
         
         existing_domains = torch.unique(all_domain_idx)
         domain_names = [self.domain_names[i] for i in existing_domains]
@@ -214,8 +218,6 @@ class LanguageDrivenDGV3(Algorithm):
             num_classes,
             self.hparams['nonlinear_classifier'])
         
-        self.dropout = nn.Dropout(hparams['resnet_dropout'])
-        
         self.clip_model = networks.CLIP(self.hparams)
         for param in self.clip_model.parameters():
             param.requires_grad = False
@@ -246,7 +248,9 @@ class LanguageDrivenDGV3(Algorithm):
         all_x = torch.cat([x for x, y in minibatches])
         all_y = torch.cat([y for x, y in minibatches])
 
-        feat = self.featurizer(all_x)
+        self.clip_model.eval()
+        
+        feat, out = self.featurizer(all_x)
         image_features = self.atten_pool(feat) # b, d, h, w
         # features = features.flatten(2).permute(0, 2, 1) # bs N, d
         image_features = image_features / image_features.norm(dim=-1, keepdim=True) # bs N, d
@@ -259,9 +263,7 @@ class LanguageDrivenDGV3(Algorithm):
         
         lang_loss = F.cross_entropy(similarity, all_y)
         
-        out = self.featurizer.network.avgpool(feat)
-        out = torch.flatten(out, 1)
-        out = self.dropout(out)
+
         logits = self.classifier(out)
         
         loss = lang_loss + F.cross_entropy(logits, all_y)
@@ -273,10 +275,7 @@ class LanguageDrivenDGV3(Algorithm):
         return {'loss': loss.item()}
 
     def predict(self, x):
-        feat = self.featurizer(x)
-        out = self.featurizer.network.avgpool(feat)
-        out = torch.flatten(out, 1)
-        out = self.dropout(out)
+        _, out = self.featurizer(x)
         logits = self.classifier(out)
         return logits
 
@@ -292,11 +291,7 @@ class LanguageDrivenDGV3_EMA(LanguageDrivenDGV3, MovingAvg):
 
     def predict(self, x):
         self.network_sma.eval()
-        
-        feat = self.network_sma["featurizer"](x)
-        out = self.network_sma["featurizer"].network.avgpool(feat)
-        out = torch.flatten(out, 1)
-        out = self.dropout(out)
+        _, out = self.network_sma["featurizer"](x)
         logits = self.network_sma["classifier"](out)
         return logits
 
