@@ -205,7 +205,7 @@ class CLIP_FinetuneWithTextFreezeWithDomainV2_NovelDomain(Algorithm):
     def __init__(self, input_shape, num_classes, num_domains, hparams):
         super(CLIP_FinetuneWithTextFreezeWithDomainV2_NovelDomain, self).__init__(input_shape, num_classes, num_domains, hparams)
         self.device = 'cuda' if torch.cuda.is_available() else 'cpu'
-
+        print("using ", self.device)
         self.featurizer = networks.CLIP(self.hparams)
         self.featurizer.eval() # turn off bn update
         
@@ -292,7 +292,7 @@ class CLIP_FinetuneWithTextFreezeWithDomainV2_NovelDomainV2(Algorithm):
     def __init__(self, input_shape, num_classes, num_domains, hparams):
         super(CLIP_FinetuneWithTextFreezeWithDomainV2_NovelDomainV2, self).__init__(input_shape, num_classes, num_domains, hparams)
         self.device = 'cuda' if torch.cuda.is_available() else 'cpu'
-
+        print("using ", self.device)
         self.featurizer = networks.CLIP(self.hparams)
         self.featurizer.eval() # turn off bn update
         

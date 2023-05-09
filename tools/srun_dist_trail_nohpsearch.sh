@@ -15,7 +15,7 @@ python -m domainbed.scripts.sweep delete_incomplete\
        --skip_confirmation\
        --hparams "$(<configs/clipood_vit-b16.json)"\
        --output_dir $save_path
-srun --partition=gpuA100x4 \
+srun --partition=gpuA40x4 \
     --gres=gpu:2 \
     --ntasks-per-node=1 \
     --ntasks=1 \
