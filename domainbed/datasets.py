@@ -292,7 +292,7 @@ class MultipleEnvironmentImageFolder(MultipleDomainDataset):
                 else:
                     env_transform = transform
 
-                path = os.path.join(root, environment)
+                path = os.path.join(extra_root, environment)
                 env_dataset = ImageFolder(path,
                     transform=env_transform)
 
@@ -365,7 +365,7 @@ class MultipleEnvironmentImageFolderWithDomain(MultipleDomainDataset):
                 else:
                     env_transform = transform
 
-                path = os.path.join(root, environment)
+                path = os.path.join(extra_root, environment)
                 env_dataset = ImageFolderWithDomain(path,
                     transform=env_transform)
 
