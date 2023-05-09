@@ -150,7 +150,14 @@ if __name__ == "__main__":
         num_workers=dataset.N_WORKERS)
         for i, (env, env_weights) in enumerate(in_splits)
         if i not in args.test_envs]
-
+    
+    if dataset.has_extra:
+        train_loaders = train_loaders + [InfiniteDataLoader(
+        dataset=dataset.extra_datasets,
+        weights=None,
+        batch_size=hparams['batch_size'],
+        num_workers=dataset.N_WORKERS),]
+        
     uda_loaders = [InfiniteDataLoader(
         dataset=env,
         weights=env_weights,
