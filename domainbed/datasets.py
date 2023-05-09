@@ -352,10 +352,11 @@ class MultipleEnvironmentImageFolderWithDomain(MultipleDomainDataset):
                 env_transform = transform
 
             path = os.path.join(root, environment)
-            env_dataset = ImageFolderWithDomain(path,
-                transform=env_transform)
+            env_dataset = ImageFolderWithDomain(root=path,
+                transform=env_transform, domain_idx=i)
 
             self.datasets.append(env_dataset)
+        
         if self.has_extra:
             extra_datasets = []
             for i, environment in enumerate(extra_environments):
@@ -366,8 +367,8 @@ class MultipleEnvironmentImageFolderWithDomain(MultipleDomainDataset):
                     env_transform = transform
 
                 path = os.path.join(extra_root, environment)
-                env_dataset = ImageFolderWithDomain(path,
-                    transform=env_transform)
+                env_dataset = ImageFolderWithDomain(root=path,
+                    transform=env_transform, domain_idx=i + len(environments))
 
                 extra_datasets.append(env_dataset)
             self.extra_datasets = ConcatDataset(extra_datasets)
