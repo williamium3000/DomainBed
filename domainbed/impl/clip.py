@@ -1,9 +1,15 @@
 import torch
+from torch.nn import functional as F
+from torch import nn
+import numpy as np
+from torch.cuda.amp import autocast, GradScaler
 
 from domainbed import networks
 import clip
+from clip.model import AttentionPool2d
 from .base import Algorithm
 from .original import ERM
+from .sma import MovingAvg, BetaMovingAvg
 
 # zero-shot CLIP
 class CLIP(Algorithm):
@@ -16,16 +22,16 @@ class CLIP(Algorithm):
         for param in self.model.parameters():
             param.requires_grad = False
 
-        self.prompt = torch.cat([clip.tokenize(f'a photo of a {cls_name}') for cls_name in hparams['class_names']]).to(self.device)
+        self.prompt = torch.cat([clip.tokenize(f'a image of a {cls_name}') for cls_name in hparams['class_names']]).to(self.device)
 
     def update(self, minibatches, unlabeled=None):
         return {'loss': 0}
 
     def predict(self, x):
         logits_per_image, _ = self.model(x, self.prompt)
-        return logits_per_image.softmax(dim=-1)
+        return logits_per_image
 
-class CLIP_LP(ERM): 
+class CLIP_LP(Algorithm): 
     def __init__(self, input_shape, num_classes, num_domains, hparams):
         super(CLIP_LP, self).__init__(input_shape, num_classes, num_domains, hparams)
         self.device = 'cuda' if torch.cuda.is_available() else 'cpu'
@@ -56,7 +62,7 @@ class CLIP_LP(ERM):
     def predict(self, x):
         return self.classifier(self.featurizer.forward_image(x))
 
-class CLIP_Finetune(ERM): 
+class CLIP_Finetune(Algorithm): 
     def __init__(self, input_shape, num_classes, num_domains, hparams):
         super(CLIP_Finetune, self).__init__(input_shape, num_classes, num_domains, hparams)
         self.device = 'cuda' if torch.cuda.is_available() else 'cpu'
@@ -81,3 +87,4 @@ class CLIP_Finetune(ERM):
   
     def predict(self, x):
         return self.classifier(self.featurizer.forward_image(x))
+

@@ -8,6 +8,7 @@ import torchvision.datasets.folder
 from torch.utils.data import TensorDataset, Subset
 from torchvision.datasets import MNIST, ImageFolder
 from torchvision.transforms.functional import rotate
+from torch.utils.data import ConcatDataset
 
 from wilds.datasets.camelyon17_dataset import Camelyon17Dataset
 from wilds.datasets.fmow_dataset import FMoWDataset
@@ -23,8 +24,11 @@ DATASETS = [
     "RotatedMNIST",
     # Big images
     "VLCS",
+    "VLCSWithDomain",
     "PACS",
+    "PACSWithDomain",
     "OfficeHome",
+    "OfficeHomeWithDomain",
     "TerraIncognita",
     "DomainNet",
     "SVIRO",
@@ -43,6 +47,62 @@ def get_dataset_class(dataset_name):
 def num_environments(dataset_name):
     return len(get_dataset_class(dataset_name).ENVIRONMENTS)
 
+class ImageFolderWithDomain(ImageFolder):
+    """A generic data loader where the images are arranged in this way by default: ::
+
+        root/dog/xxx.png
+        root/dog/xxy.png
+        root/dog/[...]/xxz.png
+
+        root/cat/123.png
+        root/cat/nsdf3.png
+        root/cat/[...]/asd932_.png
+
+    This class inherits from :class:`~torchvision.datasets.DatasetFolder` so
+    the same methods can be overridden to customize the dataset.
+
+    Args:
+        root (string): Root directory path.
+        transform (callable, optional): A function/transform that  takes in an PIL image
+            and returns a transformed version. E.g, ``transforms.RandomCrop``
+        target_transform (callable, optional): A function/transform that takes in the
+            target and transforms it.
+        loader (callable, optional): A function to load an image given its path.
+        is_valid_file (callable, optional): A function that takes path of an Image file
+            and check if the file is a valid file (used to check of corrupt files)
+
+     Attributes:
+        classes (list): List of the class names sorted alphabetically.
+        class_to_idx (dict): Dict with items (class_name, class_index).
+        imgs (list): List of (image path, class_index) tuples
+    """
+
+    def __init__(
+        self,
+        domain_idx,
+        **kwargs
+    ):
+        super().__init__(
+            **kwargs
+        )
+        self.domain_idx = domain_idx
+    def __getitem__(self, index: int):
+        """
+        Args:
+            index (int): Index
+
+        Returns:
+            tuple: (sample, target) where target is class_index of the target class.
+        """
+        path, target = self.samples[index]
+        sample = self.loader(path)
+        if self.transform is not None:
+            sample = self.transform(sample)
+        if self.target_transform is not None:
+            target = self.target_transform(target)
+
+        return sample, target, torch.tensor(self.domain_idx)
+
 
 class MultipleDomainDataset:
     N_STEPS = 5001           # Default, subclasses may override
@@ -56,6 +116,7 @@ class MultipleDomainDataset:
 
     def __len__(self):
         return len(self.datasets)
+
 
 
 class Debug(MultipleDomainDataset):
@@ -177,11 +238,20 @@ class RotatedMNIST(MultipleEnvironmentMNIST):
 
 
 class MultipleEnvironmentImageFolder(MultipleDomainDataset):
+    
     def __init__(self, root, test_envs, augment, hparams):
         super().__init__()
         environments = [f.name for f in os.scandir(root) if f.is_dir()]
         environments = sorted(environments)
-
+        
+        extra_root = hparams.get("extra_root", None)
+        if extra_root is None:
+            self.has_extra = False
+        else:
+            self.has_extra = True
+            extra_environments = [f.name for f in os.scandir(extra_root) if f.is_dir()]
+            extra_environments = sorted(extra_environments)
+        
         transform = transforms.Compose([
             transforms.Resize((224,224)),
             transforms.ToTensor(),
@@ -199,12 +269,34 @@ class MultipleEnvironmentImageFolder(MultipleDomainDataset):
             transforms.Normalize(
                 mean=[0.485, 0.456, 0.406], std=[0.229, 0.224, 0.225]),
         ])
-
+        autoaug_transformer = transforms.Compose([
+            # transforms.Resize((224,224)),
+            transforms.RandomResizedCrop(224, scale=(0.7, 1.0)),
+            transforms.RandomHorizontalFlip(),
+            transforms.AutoAugment(),
+            transforms.ToTensor(),
+            transforms.Normalize(
+                mean=[0.485, 0.456, 0.406], std=[0.229, 0.224, 0.225]),
+        ])
+        
+        randaug_transformer = transforms.Compose([
+            # transforms.Resize((224,224)),
+            transforms.RandomResizedCrop(224, scale=(0.7, 1.0)),
+            transforms.RandomHorizontalFlip(),
+            transforms.RandAugment(),
+            transforms.ToTensor(),
+            transforms.Normalize(
+                mean=[0.485, 0.456, 0.406], std=[0.229, 0.224, 0.225]),
+        ])
         self.datasets = []
         for i, environment in enumerate(environments):
 
             if augment and (i not in test_envs):
                 env_transform = augment_transform
+                if hparams.get("autoaug", False):
+                    env_transform = autoaug_transformer
+                elif hparams.get("randaug", False):
+                    env_transform = randaug_transformer
             else:
                 env_transform = transform
 
@@ -213,20 +305,144 @@ class MultipleEnvironmentImageFolder(MultipleDomainDataset):
                 transform=env_transform)
 
             self.datasets.append(env_dataset)
+        if self.has_extra:
+            extra_datasets = []
+            for i, environment in enumerate(extra_environments):
 
+                if augment and (i not in test_envs):
+                    env_transform = augment_transform
+                else:
+                    env_transform = transform
+
+                path = os.path.join(extra_root, environment)
+                env_dataset = ImageFolder(path,
+                    transform=env_transform)
+
+                extra_datasets.append(env_dataset)
+            self.extra_datasets = ConcatDataset(extra_datasets)
+        
         self.input_shape = (3, 224, 224,)
         self.num_classes = len(self.datasets[-1].classes)
         
-        hparams['domain_names'] = [domain_name.lower().replace("_", " ") for domain_name in sorted(environments)]
+        hparams['domain_names'] = [domain_name.lower().replace("_", " ") for domain_name in environments] 
+        if self.has_extra:
+            hparams['domain_names'] = hparams['domain_names'] + [domain_name.lower().replace("_", " ") for domain_name in extra_environments]
+        
         class_names = [f.name for f in os.scandir(os.path.join(root, environments[0])) if f.is_dir()]
         hparams['class_names'] = [cls_name.lower().replace("_", " ") for cls_name in sorted(class_names)]
 
+
+class MultipleEnvironmentImageFolderWithDomain(MultipleDomainDataset):
+        
+    def __init__(self, root, test_envs, augment, hparams):
+        super().__init__()
+        environments = [f.name for f in os.scandir(root) if f.is_dir()]
+        environments = sorted(environments)
+        
+        extra_root = hparams.get("extra_root", None)
+        if extra_root is None:
+            self.has_extra = False
+        else:
+            self.has_extra = True
+            extra_environments = [f.name for f in os.scandir(extra_root) if f.is_dir()]
+            extra_environments = sorted(extra_environments)
+        
+        transform = transforms.Compose([
+            transforms.Resize((224,224)),
+            transforms.ToTensor(),
+            transforms.Normalize(
+                mean=[0.485, 0.456, 0.406], std=[0.229, 0.224, 0.225])
+        ])
+
+        augment_transform = transforms.Compose([
+            # transforms.Resize((224,224)),
+            transforms.RandomResizedCrop(224, scale=(0.7, 1.0)),
+            transforms.RandomHorizontalFlip(),
+            transforms.ColorJitter(0.3, 0.3, 0.3, 0.3),
+            transforms.RandomGrayscale(),
+            transforms.ToTensor(),
+            transforms.Normalize(
+                mean=[0.485, 0.456, 0.406], std=[0.229, 0.224, 0.225]),
+        ])
+        
+        autoaug_transformer = transforms.Compose([
+            # transforms.Resize((224,224)),
+            transforms.RandomResizedCrop(224, scale=(0.7, 1.0)),
+            transforms.RandomHorizontalFlip(),
+            transforms.AutoAugment(),
+            transforms.ToTensor(),
+            transforms.Normalize(
+                mean=[0.485, 0.456, 0.406], std=[0.229, 0.224, 0.225]),
+        ])
+        
+        randaug_transformer = transforms.Compose([
+            # transforms.Resize((224,224)),
+            transforms.RandomResizedCrop(224, scale=(0.7, 1.0)),
+            transforms.RandomHorizontalFlip(),
+            transforms.RandAugment(),
+            transforms.ToTensor(),
+            transforms.Normalize(
+                mean=[0.485, 0.456, 0.406], std=[0.229, 0.224, 0.225]),
+        ])
+
+        self.datasets = []
+        for i, environment in enumerate(environments):
+
+            if augment and (i not in test_envs):
+                env_transform = augment_transform
+                if hparams.get("autoaug", False):
+                    env_transform = autoaug_transformer
+                elif hparams.get("randaug", False):
+                    env_transform = randaug_transformer
+            else:
+                env_transform = transform
+
+            path = os.path.join(root, environment)
+            env_dataset = ImageFolderWithDomain(root=path,
+                transform=env_transform, domain_idx=i)
+
+            self.datasets.append(env_dataset)
+        
+        if self.has_extra:
+            extra_datasets = []
+            for i, environment in enumerate(extra_environments):
+
+                if augment and (i not in test_envs):
+                    env_transform = augment_transform
+                else:
+                    env_transform = transform
+
+                path = os.path.join(extra_root, environment)
+                env_dataset = ImageFolderWithDomain(root=path,
+                    transform=env_transform, domain_idx=i + len(environments))
+
+                extra_datasets.append(env_dataset)
+            self.extra_datasets = ConcatDataset(extra_datasets)
+        
+        self.input_shape = (3, 224, 224,)
+        self.num_classes = len(self.datasets[-1].classes)
+        
+        hparams['domain_names'] = [domain_name.lower().replace("_", " ") for domain_name in environments] 
+        if self.has_extra:
+            hparams['domain_names'] = hparams['domain_names'] + [domain_name.lower().replace("_", " ") for domain_name in extra_environments]
+        
+        class_names = [f.name for f in os.scandir(os.path.join(root, environments[0])) if f.is_dir()]
+        hparams['class_names'] = [cls_name.lower().replace("_", " ") for cls_name in sorted(class_names)]
+        
 class VLCS(MultipleEnvironmentImageFolder):
     CHECKPOINT_FREQ = 300
     ENVIRONMENTS = ["C", "L", "S", "V"]
     def __init__(self, root, test_envs, hparams):
         self.dir = os.path.join(root, "VLCS/")
         super().__init__(self.dir, test_envs, hparams['data_augmentation'], hparams)
+
+class VLCSWithDomain(MultipleEnvironmentImageFolderWithDomain):
+    CHECKPOINT_FREQ = 300
+    ENVIRONMENTS = ["C", "L", "S", "V"]
+    def __init__(self, root, test_envs, hparams):
+        self.dir = os.path.join(root, "VLCS/")
+        super().__init__(self.dir, test_envs, hparams['data_augmentation'], hparams)
+
 
 class PACS(MultipleEnvironmentImageFolder):
     CHECKPOINT_FREQ = 300
@@ -235,6 +451,13 @@ class PACS(MultipleEnvironmentImageFolder):
         self.dir = os.path.join(root, "PACS/")
         super().__init__(self.dir, test_envs, hparams['data_augmentation'], hparams)
 
+class PACSWithDomain(MultipleEnvironmentImageFolderWithDomain):
+    CHECKPOINT_FREQ = 300
+    ENVIRONMENTS = ["A", "C", "P", "S"]
+    def __init__(self, root, test_envs, hparams):
+        self.dir = os.path.join(root, "PACS/")
+        super().__init__(self.dir, test_envs, hparams['data_augmentation'], hparams)
+        
 class DomainNet(MultipleEnvironmentImageFolder):
     CHECKPOINT_FREQ = 1000
     ENVIRONMENTS = ["clip", "info", "paint", "quick", "real", "sketch"]
@@ -248,6 +471,16 @@ class OfficeHome(MultipleEnvironmentImageFolder):
     def __init__(self, root, test_envs, hparams):
         self.dir = os.path.join(root, "office_home/")
         super().__init__(self.dir, test_envs, hparams['data_augmentation'], hparams)
+
+
+class OfficeHomeWithDomain(MultipleEnvironmentImageFolderWithDomain):
+    CHECKPOINT_FREQ = 300
+    ENVIRONMENTS = ["A", "C", "P", "R"]
+    def __init__(self, root, test_envs, hparams):
+        self.dir = os.path.join(root, "office_home/")
+        super().__init__(self.dir, test_envs, hparams['data_augmentation'], hparams)
+        hparams['domain_names'] = ['art', 'clip art', 'product', 'real world']
+
 
 class TerraIncognita(MultipleEnvironmentImageFolder):
     CHECKPOINT_FREQ = 300

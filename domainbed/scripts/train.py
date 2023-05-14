@@ -150,7 +150,14 @@ if __name__ == "__main__":
         num_workers=dataset.N_WORKERS)
         for i, (env, env_weights) in enumerate(in_splits)
         if i not in args.test_envs]
-
+    
+    if dataset.has_extra:
+        train_loaders = train_loaders + [InfiniteDataLoader(
+        dataset=dataset.extra_datasets,
+        weights=None,
+        batch_size=hparams['batch_size'],
+        num_workers=dataset.N_WORKERS),]
+        
     uda_loaders = [InfiniteDataLoader(
         dataset=env,
         weights=env_weights,
@@ -206,13 +213,17 @@ if __name__ == "__main__":
     last_results_keys = None
     for step in range(start_step, n_steps):
         step_start_time = time.time()
-        minibatches_device = [(x.to(device), y.to(device))
-            for x,y in next(train_minibatches_iterator)]
+        domain_batches = next(train_minibatches_iterator)
+        minibatches_device = [[_.to(device)for _ in minibatch]
+            for minibatch in domain_batches]
         if args.task == "domain_adaptation":
             uda_device = [x.to(device)
                 for x,_ in next(uda_minibatches_iterator)]
         else:
             uda_device = None
+            
+        algorithm.train()
+        
         if hparams.get("pass_step", False):
             step_vals = algorithm.update(minibatches_device, uda_device, step=step)
         else:

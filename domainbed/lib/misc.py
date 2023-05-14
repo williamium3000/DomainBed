@@ -191,9 +191,9 @@ def accuracy(network, loader, weights, device):
 
     network.eval()
     with torch.no_grad():
-        for x, y in loader:
-            x = x.to(device)
-            y = y.to(device)
+        for minibatch in loader:
+            minibatch = [_.to(device) for _ in minibatch]
+            x, y  = minibatch[:2]
             p = network.predict(x)
             if weights is None:
                 batch_weights = torch.ones(len(x))
