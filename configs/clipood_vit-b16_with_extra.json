@@ -1,0 +1,7 @@
+{
+    "clip_model": "ViT-B/16",
+    "weight_decay": 0.1,
+    "lr": 5e-6,
+    "batch_size": 36,
+    "extra_root": "/experiment/data/william/share/dataSet/extra_pacs"
+}
