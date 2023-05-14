@@ -342,12 +342,36 @@ class MultipleEnvironmentImageFolderWithDomain(MultipleDomainDataset):
             transforms.Normalize(
                 mean=[0.485, 0.456, 0.406], std=[0.229, 0.224, 0.225]),
         ])
+        
+        autoaug_transformer = transforms.Compose([
+            # transforms.Resize((224,224)),
+            transforms.RandomResizedCrop(224, scale=(0.7, 1.0)),
+            transforms.RandomHorizontalFlip(),
+            transforms.AutoAugment(),
+            transforms.ToTensor(),
+            transforms.Normalize(
+                mean=[0.485, 0.456, 0.406], std=[0.229, 0.224, 0.225]),
+        ])
+        
+        randaug_transformer = transforms.Compose([
+            # transforms.Resize((224,224)),
+            transforms.RandomResizedCrop(224, scale=(0.7, 1.0)),
+            transforms.RandomHorizontalFlip(),
+            transforms.RandAugment(),
+            transforms.ToTensor(),
+            transforms.Normalize(
+                mean=[0.485, 0.456, 0.406], std=[0.229, 0.224, 0.225]),
+        ])
 
         self.datasets = []
         for i, environment in enumerate(environments):
 
             if augment and (i not in test_envs):
                 env_transform = augment_transform
+                if hparams.get("autoaug", False):
+                    env_transform = autoaug_transformer
+                elif hparams.get("randaug", False):
+                    env_transform = randaug_transformer
             else:
                 env_transform = transform
 
