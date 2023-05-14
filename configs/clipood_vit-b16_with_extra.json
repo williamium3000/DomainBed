@@ -3,5 +3,6 @@
     "weight_decay": 0.1,
     "lr": 5e-6,
     "batch_size": 36,
-    "extra_root": "/experiment/william/share/dataSet/extra_office_home"
+    "extra_root": "/home/mliu121/scratch4-yqiao4/extra_office_home",
+    "novel_domains": ["pixel art", "anime/manga", "comic book", "sketch", "cartoon", "graffiti", "street art", "minimalism", "pop art", "abstract", "surrealism", "expressionism", "impressionism", "art deco", "retro", "vintage", "futuristic", "cyberpunk", "steampunk", "gothic", "horror", "fantasy", "sci-fi", "nature", "wildlife", "underwater", "outer space", "industrial", "architectural", "fashion", "geometric", "neon", "collage", "photorealistic", "digital", "line art", "watercolor", "charcoal", "pen and ink", "chalk and pastel", "pointillism", "mosaic", "stained glass", "origami", "clay", "woodcarving", "metalwork", "calligraphy", "embroidery", "quilting"]
 }
