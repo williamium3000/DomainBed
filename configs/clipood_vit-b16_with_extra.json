@@ -3,5 +3,5 @@
     "weight_decay": 0.1,
     "lr": 5e-6,
     "batch_size": 36,
-    "extra_root": "/experiment/data/william/share/dataSet/extra_pacs"
+    "extra_root": "/experiment/william/share/dataSet/extra_office_home"
 }
