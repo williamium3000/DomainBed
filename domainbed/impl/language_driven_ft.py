@@ -182,6 +182,7 @@ class CLIP_FinetuneWithTextFreezeWithDomainV2(Algorithm):
             # cosine similarity as logits
             logit_scale = self.logit_scale.exp().to(self.device)
             
+            
             loss_cls = F.cross_entropy(logit_scale * image_features @ class_text_features.T, all_y)
             loss_domain = F.cross_entropy(logit_scale * image_features @ domain_text_features.T, new_domain_idx)
 
