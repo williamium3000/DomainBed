@@ -1,6 +1,6 @@
 dataset=$1
 algorithms=$2
-save_path=work_dirs/sweep/vit-b16/$dataset/${algorithms}
+save_path=work_dirs/sweep/vit-b16/${dataset}_extra/${algorithms}
 
 python -m domainbed.scripts.sweep delete_incomplete\
        --datasets ${dataset}\
@@ -13,16 +13,17 @@ python -m domainbed.scripts.sweep delete_incomplete\
        --n_hparams 1\
        --n_trials 3\
        --skip_confirmation\
-       --hparams "$(<configs/clipood_vit-b16.json)"\
+       --hparams "$(<configs/clipood_vit-b16_with_extra.json)"\
        --output_dir $save_path
-srun --partition=gpuA100x4 \
-    --gres=gpu:2 \
+
+srun --job-name=sweep \
+    --time=48:0:0 \
+    --partition=a100 \
     --ntasks-per-node=1 \
     --ntasks=1 \
-    --job-name=sweep \
-    --mem-per-cpu=16GB --cpus-per-task=3 \
-    --time 02-00:00:00 \
-    -A bbrt-delta-gpu   \
+    --mem=60G \
+    --gres=gpu:1 \
+    -A danielk80_gpu \
     --kill-on-bad-exit=1 \
     python -m domainbed.scripts.sweep launch\
        --datasets ${dataset}\
@@ -35,5 +36,5 @@ srun --partition=gpuA100x4 \
        --n_hparams 1\
        --n_trials 3\
        --skip_confirmation\
-       --hparams "$(<configs/clipood_vit-b16.json)"\
+       --hparams "$(<configs/clipood_vit-b16_with_extra.json)"\
        --output_dir $save_path

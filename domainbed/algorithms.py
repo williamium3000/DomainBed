@@ -6,7 +6,8 @@ from .impl.clipood import CLIP_FinetuneWithTextFreeze, CLIP_FinetuneWithTextFree
 from .impl.language_driven import LanguageDrivenDG, LanguageDrivenDGV2, LanguageDrivenDGV2_EMA, LanguageDrivenDGV3, LanguageDrivenDGV3_EMA
 from .impl.language_driven_ft import CLIP_FinetuneWithTextFreezeWithDomain, CLIP_FinetuneWithTextFreezeWithDomain_BetaEMA, \
     CLIP_FinetuneWithTextFreezeWithDomain_EMA, CLIP_FinetuneWithTextFreezeWithDomainV2, CLIP_FinetuneWithTextFreezeWithDomainV2_BetaEMA, \
-        CLIP_FinetuneWithTextFreezeWithDomainV2_EMA, CLIP_FinetuneWithTextFreezeWithDomainV3
+        CLIP_FinetuneWithTextFreezeWithDomainV2_EMA, CLIP_FinetuneWithTextFreezeWithDomainV3, CLIP_FinetuneWithTextFreezeWithDomainV2_NovelDomain, \
+            CLIP_FinetuneWithTextFreezeWithDomainV2_NovelDomainV2
 
 from .impl.w2d import W2D, W2D_v2, W2D_EMA, W2D_v2_EMA
 from .impl.clip_kd import ERM_CLIP_Logits, W2D_v2_CLIP_Logits, W2D_v2_CLIP_Logits_EMA, \
@@ -60,6 +61,7 @@ ALGORITHMS = [
     'CLIP_FinetuneWithTextFreezeWithDomain_EMA',
     'CLIP_FinetuneWithTextFreezeWithDomainV2_BetaEMA',
     'CLIP_FinetuneWithTextFreezeWithDomainV2_EMA',
+    'CLIP_FinetuneWithTextFreezeWithDomainV2_NovelDomainV2',
     'ERM_SMA_CLIPDistill',
     'CLIP_FinetuneWithTextFreeze',
     'CLIP_FinetuneWithTextFreeze_EMA',
@@ -73,7 +75,8 @@ ALGORITHMS = [
     'LanguageDrivenDGV3_EMA',
     'CLIPood_BetaEMA',
     'CLIP_FinetuneWithTextFreezeWithDomainV3',
-    'CLIPood'
+    'CLIPood',
+    'CLIP_FinetuneWithTextFreezeWithDomainV2_NovelDomain'
 ]
 
 def get_algorithm_class(algorithm_name):

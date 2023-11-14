@@ -1,0 +1,8 @@
+{
+    "clip_model": "ViT-B/16",
+    "weight_decay": 0.1,
+    "lr": 1e-6,
+    "batch_size": 18,
+    "novel_domains": ["pixel art", "anime/manga", "comic book", "sketch", "cartoon", "graffiti", "street art", "minimalism", "pop art", "abstract", "surrealism", "expressionism", "impressionism", "art deco", "retro", "vintage", "futuristic", "cyberpunk", "steampunk", "gothic", "horror", "fantasy", "sci-fi", "nature", "wildlife", "underwater", "outer space", "industrial", "architectural", "fashion", "geometric", "neon", "collage", "photorealistic", "digital", "line art", "watercolor", "charcoal", "pen and ink", "chalk and pastel", "pointillism", "mosaic", "stained glass", "origami", "clay", "woodcarving", "metalwork", "calligraphy", "embroidery", "quilting"],
+    "extra_root": "/experiment/data/william/share/dataSet/extra_pacs"
+}
